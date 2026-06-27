@@ -25,7 +25,7 @@ export default function AdminSettings() {
 
   useEffect(() => {
     async function fetchSettings() {
-      const { data, error } = await supabase
+      const { data } = await supabase
         .from('settings')
         .select('*')
         .limit(1)
