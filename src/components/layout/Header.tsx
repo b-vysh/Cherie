@@ -1,12 +1,8 @@
-import { Menu, X } from 'lucide-react';
+import { X } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import { useCart } from '../../context/CartContext';
 
-interface HeaderProps {
-  onMenuClick?: () => void;
-}
-
-export default function Header({ onMenuClick }: HeaderProps) {
+export default function Header() {
   const { totalItems } = useCart();
   const location = useLocation();
   const isCartPage = location.pathname === '/cart';

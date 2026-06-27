@@ -15,7 +15,7 @@ export default function MainLayout({ children, sidebarProps }: MainLayoutProps) 
   return (
     <div className="min-h-screen bg-brand-bg flex flex-col font-body">
       <AnnouncementBar />
-      <Header onMenuClick={() => setIsSidebarOpen(true)} />
+      <Header />
 
       {/* Sticky Mobile Navbar */}
       <div className="md:hidden sticky top-0 z-40 bg-brand-bg/95 backdrop-blur-sm border-b border-brand-primary/20 p-4 flex items-center justify-between shadow-sm">

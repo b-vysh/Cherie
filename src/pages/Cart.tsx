@@ -8,7 +8,7 @@ import Header from '../components/layout/Header';
 import { supabase } from '../services/supabase';
 
 export default function Cart() {
-  const { cart, removeFromCart, updateQuantity, cartTotal } = useCart();
+  const { cart, removeFromCart, updateQuantity, cartTotal, clearCart } = useCart();
   const [whatsappNumber, setWhatsappNumber] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [customerDetails, setCustomerDetails] = useState({
@@ -74,7 +74,10 @@ export default function Cart() {
     // Use window.location.href instead of window.open to prevent mobile popup blockers
     window.location.href = `https://wa.me/${cleanNumber}?text=${encodedMessage}`;
     
-    setTimeout(() => setIsProcessing(false), 1000); // Reset processing state
+    setTimeout(() => {
+      setIsProcessing(false);
+      clearCart();
+    }, 500); // Reset processing state and clear cart after short delay to ensure redirect happens first
   };
 
   const shippingMatch = shippingText.match(/\d+/);
