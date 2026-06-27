@@ -38,32 +38,32 @@ export default function Login() {
   return (
     <div className="min-h-screen bg-brand-bg flex items-center justify-center p-4 font-body">
       <div className="bg-brand-peach w-full max-w-md p-8 rounded-[16px] shadow-sm">
-        <h1 className="text-2xl font-heading text-brand-primary text-center mb-6">Admin Portal</h1>
+        <h1 className="text-2xl font-heading text-[#115E63] text-center mb-6">Admin Portal</h1>
         
         {error && (
-          <div className="bg-brand-accent/20 border border-brand-accent text-brand-primary p-3 rounded-[10px] text-sm mb-6 text-center">
+          <div className="bg-brand-accent/20 border border-brand-accent text-[#115E63] p-3 rounded-[10px] text-sm mb-6 text-center">
             {error}
           </div>
         )}
 
         <form onSubmit={handleLogin} className="space-y-4">
           <div>
-            <label className="block text-brand-primary text-sm font-bold mb-2">Email</label>
+            <label className="block text-[#115E63] text-sm font-bold mb-2">Email</label>
             <input 
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full bg-brand-bg border border-brand-primary/20 rounded-[10px] px-4 py-3 text-brand-primary focus:outline-none focus:border-brand-primary transition-colors"
+              className="w-full bg-brand-bg border border-brand-primary/20 rounded-[10px] px-4 py-3 text-[#115E63] focus:outline-none focus:border-brand-primary transition-colors"
               required
             />
           </div>
           <div>
-            <label className="block text-brand-primary text-sm font-bold mb-2">Password</label>
+            <label className="block text-[#115E63] text-sm font-bold mb-2">Password</label>
             <input 
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full bg-brand-bg border border-brand-primary/20 rounded-[10px] px-4 py-3 text-brand-primary focus:outline-none focus:border-brand-primary transition-colors"
+              className="w-full bg-brand-bg border border-brand-primary/20 rounded-[10px] px-4 py-3 text-[#115E63] focus:outline-none focus:border-brand-primary transition-colors"
               required
             />
           </div>
@@ -71,7 +71,7 @@ export default function Login() {
           <button 
             type="submit"
             disabled={isLoading}
-            className="w-full bg-brand-primary text-brand-bg font-bold py-3 px-4 rounded-[10px] hover:bg-brand-primary/90 transition-colors mt-4 disabled:opacity-70"
+            className="w-full bg-brand-primary text-[#115E63] font-bold py-3 px-4 rounded-[10px] hover:bg-brand-primary/90 transition-colors mt-4 disabled:opacity-70"
           >
             {isLoading ? 'Signing in...' : 'Sign In'}
           </button>

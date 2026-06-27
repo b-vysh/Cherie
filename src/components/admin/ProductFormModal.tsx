@@ -144,10 +144,10 @@ export default function ProductFormModal({ isOpen, onClose, product, categories,
         
         {/* Header */}
         <div className="flex justify-between items-center p-6 border-b border-brand-primary/10 bg-brand-peach">
-          <h2 className="text-2xl font-heading text-brand-primary">
+          <h2 className="text-2xl font-heading text-[#115E63]">
             {product ? 'Edit Product' : 'Add New Product'}
           </h2>
-          <button onClick={onClose} className="text-brand-primary hover:bg-brand-primary/10 p-2 rounded-full transition-colors">
+          <button onClick={onClose} className="text-[#115E63] hover:bg-brand-primary/10 p-2 rounded-full transition-colors">
             <X size={24} />
           </button>
         </div>
@@ -155,7 +155,7 @@ export default function ProductFormModal({ isOpen, onClose, product, categories,
         {/* Form Body */}
         <div className="flex-1 overflow-y-auto p-6">
           {error && (
-            <div className="mb-6 p-4 bg-brand-accent/20 border border-brand-accent text-brand-primary rounded-[10px] text-sm">
+            <div className="mb-6 p-4 bg-brand-accent/20 border border-brand-accent text-[#115E63] rounded-[10px] text-sm">
               {error}
             </div>
           )}
@@ -164,7 +164,7 @@ export default function ProductFormModal({ isOpen, onClose, product, categories,
             
             {/* Image Upload Section */}
             <div className="space-y-2">
-              <label className="block text-brand-primary text-sm font-bold">Product Image</label>
+              <label className="block text-[#115E63] text-sm font-bold">Product Image</label>
               
               <div 
                 className={`border-2 border-dashed rounded-[16px] p-4 flex flex-col items-center justify-center cursor-pointer transition-colors ${
@@ -176,13 +176,13 @@ export default function ProductFormModal({ isOpen, onClose, product, categories,
                   <div className="relative w-full h-48 sm:h-64 rounded-lg overflow-hidden group">
                     <img src={imagePreview} alt="Preview" className="w-full h-full object-contain" />
                     <div className="absolute inset-0 bg-brand-primary/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                      <p className="text-brand-bg font-bold flex items-center gap-2">
+                      <p className="text-[#115E63] font-bold flex items-center gap-2">
                         <Upload size={20} /> Change Image
                       </p>
                     </div>
                   </div>
                 ) : (
-                  <div className="py-8 flex flex-col items-center text-brand-primary/60">
+                  <div className="py-8 flex flex-col items-center text-[#115E63]/60">
                     <ImageIcon size={48} className="mb-3 opacity-50" />
                     <p className="font-bold mb-1">Click to upload image</p>
                     <p className="text-sm">SVG, PNG, JPG or GIF</p>
@@ -202,19 +202,19 @@ export default function ProductFormModal({ isOpen, onClose, product, categories,
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* Name */}
               <div className="space-y-2">
-                <label className="block text-brand-primary text-sm font-bold">Name</label>
+                <label className="block text-[#115E63] text-sm font-bold">Name</label>
                 <input 
                   type="text" 
                   required
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  className="w-full bg-brand-bg border border-brand-primary/20 rounded-[10px] px-4 py-3 text-brand-primary focus:outline-none focus:ring-2 focus:ring-brand-accent transition-all"
+                  className="w-full bg-brand-bg border border-brand-primary/20 rounded-[10px] px-4 py-3 text-[#115E63] focus:outline-none focus:ring-2 focus:ring-brand-accent transition-all"
                 />
               </div>
 
               {/* Price */}
               <div className="space-y-2">
-                <label className="block text-brand-primary text-sm font-bold">Price (₹)</label>
+                <label className="block text-[#115E63] text-sm font-bold">Price (₹)</label>
                 <input 
                   type="number" 
                   required
@@ -222,19 +222,19 @@ export default function ProductFormModal({ isOpen, onClose, product, categories,
                   step="0.01"
                   value={price}
                   onChange={(e) => setPrice(e.target.value)}
-                  className="w-full bg-brand-bg border border-brand-primary/20 rounded-[10px] px-4 py-3 text-brand-primary focus:outline-none focus:ring-2 focus:ring-brand-accent transition-all"
+                  className="w-full bg-brand-bg border border-brand-primary/20 rounded-[10px] px-4 py-3 text-[#115E63] focus:outline-none focus:ring-2 focus:ring-brand-accent transition-all"
                 />
               </div>
             </div>
 
             {/* Category */}
             <div className="space-y-2">
-              <label className="block text-brand-primary text-sm font-bold">Category</label>
+              <label className="block text-[#115E63] text-sm font-bold">Category</label>
               <select 
                 required
                 value={categoryId}
                 onChange={(e) => setCategoryId(e.target.value)}
-                className="w-full bg-brand-bg border border-brand-primary/20 rounded-[10px] px-4 py-3 text-brand-primary focus:outline-none focus:ring-2 focus:ring-brand-accent transition-all appearance-none"
+                className="w-full bg-brand-bg border border-brand-primary/20 rounded-[10px] px-4 py-3 text-[#115E63] focus:outline-none focus:ring-2 focus:ring-brand-accent transition-all appearance-none"
               >
                 <option value="" disabled>Select a category</option>
                 {categories.map(cat => (
@@ -245,12 +245,12 @@ export default function ProductFormModal({ isOpen, onClose, product, categories,
 
             {/* Description */}
             <div className="space-y-2">
-              <label className="block text-brand-primary text-sm font-bold">Description</label>
+              <label className="block text-[#115E63] text-sm font-bold">Description</label>
               <textarea 
                 rows={4}
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                className="w-full bg-brand-bg border border-brand-primary/20 rounded-[10px] px-4 py-3 text-brand-primary focus:outline-none focus:ring-2 focus:ring-brand-accent transition-all resize-none"
+                className="w-full bg-brand-bg border border-brand-primary/20 rounded-[10px] px-4 py-3 text-[#115E63] focus:outline-none focus:ring-2 focus:ring-brand-accent transition-all resize-none"
               />
             </div>
 
@@ -263,7 +263,7 @@ export default function ProductFormModal({ isOpen, onClose, product, categories,
                   onChange={(e) => setVisible(e.target.checked)}
                   className="w-5 h-5 accent-brand-primary rounded border-brand-primary/20"
                 />
-                <span className="text-brand-primary font-bold">Visible on Store</span>
+                <span className="text-[#115E63] font-bold">Visible on Store</span>
               </label>
 
               <label className="flex items-center gap-3 cursor-pointer">
@@ -273,7 +273,7 @@ export default function ProductFormModal({ isOpen, onClose, product, categories,
                   onChange={(e) => setFeatured(e.target.checked)}
                   className="w-5 h-5 accent-brand-primary rounded border-brand-primary/20"
                 />
-                <span className="text-brand-primary font-bold">Featured Product</span>
+                <span className="text-[#115E63] font-bold">Featured Product</span>
               </label>
             </div>
 
@@ -286,7 +286,7 @@ export default function ProductFormModal({ isOpen, onClose, product, categories,
             type="button"
             onClick={onClose}
             disabled={isSubmitting}
-            className="px-6 py-3 rounded-[10px] text-brand-primary font-bold hover:bg-brand-primary/5 transition-colors disabled:opacity-50"
+            className="px-6 py-3 rounded-[10px] text-[#115E63] font-bold hover:bg-brand-primary/5 transition-colors disabled:opacity-50"
           >
             Cancel
           </button>
@@ -294,7 +294,7 @@ export default function ProductFormModal({ isOpen, onClose, product, categories,
             form="product-form"
             type="submit"
             disabled={isSubmitting}
-            className="px-6 py-3 bg-brand-primary text-brand-bg rounded-[10px] font-bold hover:bg-brand-primary/90 transition-colors disabled:opacity-70 flex items-center gap-2"
+            className="px-6 py-3 bg-brand-primary text-[#115E63] rounded-[10px] font-bold hover:bg-brand-primary/90 transition-colors disabled:opacity-70 flex items-center gap-2"
           >
             {isSubmitting ? (
               <span className="animate-pulse">{uploadProgress || 'Saving...'}</span>

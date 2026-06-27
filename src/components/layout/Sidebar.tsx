@@ -25,19 +25,19 @@ export default function Sidebar({ isOpen, onClose, categories, selectedCategoryI
       {/* Sidebar Content */}
       <aside className={`
         fixed md:static inset-y-0 left-0 z-50
-        w-64 bg-brand-peach border-r border-brand-primary/10
+        w-64 bg-brand-primary border-r border-[#115E63]/10
         transform transition-transform duration-300 ease-in-out
         ${isOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
       `}>
         <div className="p-6 h-full flex flex-col">
           <div className="flex justify-between items-center md:hidden mb-6">
-            <h2 className="text-xl font-heading text-brand-primary">Categories</h2>
-            <button onClick={onClose} className="text-brand-primary">
+            <h2 className="text-xl font-heading text-[#115E63]">Categories</h2>
+            <button onClick={onClose} className="text-[#115E63]">
               <X size={24} />
             </button>
           </div>
           
-          <h2 className="hidden md:block text-2xl font-heading text-brand-primary mb-6">Collections</h2>
+          <h2 className="hidden md:block text-2xl font-heading text-[#115E63] mb-6">Collections</h2>
           
           <nav className="flex-1 space-y-2 overflow-y-auto">
             <button
@@ -47,7 +47,7 @@ export default function Sidebar({ isOpen, onClose, categories, selectedCategoryI
               }}
               className={`
                 w-full text-left px-4 py-2 rounded-lg transition-colors
-                ${selectedCategoryId === null ? 'bg-brand-accent/20 text-brand-primary font-bold' : 'text-brand-primary hover:bg-brand-accent/10'}
+                ${selectedCategoryId === null ? 'bg-[#115E63]/10 text-[#115E63] font-bold' : 'text-[#115E63] hover:bg-[#115E63]/5'}
               `}
             >
               All
@@ -61,7 +61,7 @@ export default function Sidebar({ isOpen, onClose, categories, selectedCategoryI
                 }}
                 className={`
                   w-full text-left px-4 py-2 rounded-lg transition-colors
-                  ${selectedCategoryId === category.id ? 'bg-brand-accent/20 text-brand-primary font-bold' : 'text-brand-primary hover:bg-brand-accent/10'}
+                  ${selectedCategoryId === category.id ? 'bg-[#115E63]/10 text-[#115E63] font-bold' : 'text-[#115E63] hover:bg-[#115E63]/5'}
                 `}
               >
                 {category.name}

@@ -92,56 +92,56 @@ export default function AdminSettings() {
   return (
     <AdminLayout>
       <div className="max-w-3xl mx-auto">
-        <h1 className="text-4xl font-heading text-brand-primary mb-8">Store Settings</h1>
+        <h1 className="text-4xl font-heading text-[#115E63] mb-8">Store Settings</h1>
 
         {isLoading ? (
-          <div className="py-10 text-center text-brand-primary animate-pulse font-bold">Loading settings...</div>
+          <div className="py-10 text-center text-[#115E63] animate-pulse font-bold">Loading settings...</div>
         ) : (
           <form onSubmit={handleSave} className="bg-brand-peach p-6 md:p-8 rounded-[16px] shadow-sm space-y-6">
             
             <div className="space-y-2">
-              <label className="block text-brand-primary font-bold">WhatsApp Number</label>
-              <p className="text-sm text-brand-primary/60 mb-2">Used for checkout redirects (include country code, e.g. +91XXXXXXXXXX)</p>
+              <label className="block text-[#115E63] font-bold">WhatsApp Number</label>
+              <p className="text-sm text-[#115E63]/60 mb-2">Used for checkout redirects (include country code, e.g. +91XXXXXXXXXX)</p>
               <input 
                 type="text" 
                 name="whatsapp_number"
                 value={settings.whatsapp_number}
                 onChange={handleChange}
                 placeholder="+91 98765 43210"
-                className="w-full px-4 py-3 bg-brand-bg border border-brand-primary/20 rounded-[10px] text-brand-primary focus:outline-none focus:border-brand-primary transition-colors"
+                className="w-full px-4 py-3 bg-brand-bg border border-brand-primary/20 rounded-[10px] text-[#115E63] focus:outline-none focus:border-brand-primary transition-colors"
               />
             </div>
 
             <div className="space-y-2">
-              <label className="block text-brand-primary font-bold">Instagram URL</label>
-              <p className="text-sm text-brand-primary/60 mb-2">Link for the icon in the announcement bar</p>
+              <label className="block text-[#115E63] font-bold">Instagram URL</label>
+              <p className="text-sm text-[#115E63]/60 mb-2">Link for the icon in the announcement bar</p>
               <input 
                 type="url" 
                 name="instagram_url"
                 value={settings.instagram_url}
                 onChange={handleChange}
                 placeholder="https://instagram.com/yourstore"
-                className="w-full px-4 py-3 bg-brand-bg border border-brand-primary/20 rounded-[10px] text-brand-primary focus:outline-none focus:border-brand-primary transition-colors"
+                className="w-full px-4 py-3 bg-brand-bg border border-brand-primary/20 rounded-[10px] text-[#115E63] focus:outline-none focus:border-brand-primary transition-colors"
               />
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
-                <label className="block text-brand-primary font-bold">Shipping Text</label>
-                <p className="text-sm text-brand-primary/60 mb-2">Base shipping fee (e.g. Shipping ₹80)</p>
+                <label className="block text-[#115E63] font-bold">Shipping Text</label>
+                <p className="text-sm text-[#115E63]/60 mb-2">Base shipping fee (e.g. Shipping ₹80)</p>
                 <input 
                   type="text" 
                   name="shipping_text"
                   value={settings.shipping_text}
                   onChange={handleChange}
                   placeholder="Shipping ₹80"
-                  className="w-full px-4 py-3 bg-brand-bg border border-brand-primary/20 rounded-[10px] text-brand-primary focus:outline-none focus:border-brand-primary transition-colors"
+                  className="w-full px-4 py-3 bg-brand-bg border border-brand-primary/20 rounded-[10px] text-[#115E63] focus:outline-none focus:border-brand-primary transition-colors"
                 />
               </div>
 
               <div className="space-y-2">
-                <label className="block text-brand-primary font-bold">Free Shipping Threshold (₹)</label>
-                <p className="text-sm text-brand-primary/60 mb-2">Amount needed for free shipping (e.g. 2000)</p>
+                <label className="block text-[#115E63] font-bold">Free Shipping Threshold (₹)</label>
+                <p className="text-sm text-[#115E63]/60 mb-2">Amount needed for free shipping (e.g. 2000)</p>
                 <input 
                   type="number" 
                   name="free_shipping_threshold"
@@ -149,7 +149,7 @@ export default function AdminSettings() {
                   onChange={handleChange}
                   placeholder="2000"
                   min="0"
-                  className="w-full px-4 py-3 bg-brand-bg border border-brand-primary/20 rounded-[10px] text-brand-primary focus:outline-none focus:border-brand-primary transition-colors"
+                  className="w-full px-4 py-3 bg-brand-bg border border-brand-primary/20 rounded-[10px] text-[#115E63] focus:outline-none focus:border-brand-primary transition-colors"
                 />
               </div>
             </div>
@@ -158,7 +158,7 @@ export default function AdminSettings() {
               <button 
                 type="submit"
                 disabled={isSaving}
-                className="bg-brand-primary text-brand-bg px-8 py-3 rounded-[10px] font-bold flex items-center gap-2 hover:bg-brand-primary/90 transition-colors disabled:opacity-70"
+                className="bg-brand-primary text-[#115E63] px-8 py-3 rounded-[10px] font-bold flex items-center gap-2 hover:bg-brand-primary/90 transition-colors disabled:opacity-70"
               >
                 <Save size={20} />
                 {isSaving ? 'Saving...' : 'Save Settings'}

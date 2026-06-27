@@ -11,17 +11,28 @@ export default function Cart() {
   const { cart, removeFromCart, updateQuantity, cartTotal } = useCart();
   const [whatsappNumber, setWhatsappNumber] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [customerDetails, setCustomerDetails] = useState({
+    name: '',
+    phone: '',
+    instaId: '',
+    address: ''
+  });
+
+  const [shippingText, setShippingText] = useState<string>('Shipping ₹80');
+  const [shippingThreshold, setShippingThreshold] = useState<number | null>(null);
 
   useEffect(() => {
     async function fetchSettings() {
       const { data } = await supabase
         .from('settings')
-        .select('whatsapp_number')
+        .select('whatsapp_number, shipping_text, free_shipping_threshold')
         .limit(1)
         .single();
       
-      if (data?.whatsapp_number) {
-        setWhatsappNumber(data.whatsapp_number);
+      if (data) {
+        if (data.whatsapp_number) setWhatsappNumber(data.whatsapp_number);
+        setShippingText(data.shipping_text || 'Shipping ₹80');
+        if (data.free_shipping_threshold) setShippingThreshold(Number(data.free_shipping_threshold));
       }
     }
     fetchSettings();
@@ -33,15 +44,29 @@ export default function Cart() {
       return;
     }
 
+    if (!customerDetails.name || !customerDetails.phone || !customerDetails.address) {
+      toast.error("Please fill in all required details (Name, Phone, Address).");
+      return;
+    }
+
     setIsProcessing(true);
 
-    let message = "Hello CHERIE,\n\nI would like to enquire about:\n\n";
+    let message = "Hello CHERIE,\n\nI would like to place an order:\n\n";
     
+    message += `*Customer Details*\n`;
+    message += `Name: ${customerDetails.name}\n`;
+    message += `Phone: ${customerDetails.phone}\n`;
+    if (customerDetails.instaId) message += `Insta ID: ${customerDetails.instaId}\n`;
+    message += `Address: ${customerDetails.address}\n\n`;
+    
+    message += `*Order Items*\n`;
     cart.forEach(item => {
-      message += `* ${item.name} - ${item.quantity} - ₹${item.price * item.quantity}\n`;
+      message += `- ${item.name} x${item.quantity} (₹${item.price * item.quantity})\n`;
     });
     
-    message += `\nTotal Amount: ₹${cartTotal}\n\nPlease share availability and payment details.`;
+    message += `\n*Subtotal: ₹${cartTotal}*\n`;
+    message += `*Shipping: ${actualShippingCost === 0 ? 'Free' : `₹${actualShippingCost}`}*\n`;
+    message += `*Grand Total: ₹${grandTotal}*\n\nPlease share payment details.`;
     
     const encodedMessage = encodeURIComponent(message);
     const cleanNumber = whatsappNumber.replace(/\D/g, ''); // Remove non-numeric characters
@@ -52,6 +77,12 @@ export default function Cart() {
     setTimeout(() => setIsProcessing(false), 1000); // Reset processing state
   };
 
+  const shippingMatch = shippingText.match(/\d+/);
+  const baseShippingCost = shippingMatch ? parseInt(shippingMatch[0]) : 0;
+  const isFreeShipping = shippingThreshold !== null && cartTotal >= shippingThreshold;
+  const actualShippingCost = isFreeShipping ? 0 : baseShippingCost;
+  const grandTotal = cartTotal + actualShippingCost;
+
   return (
     <div className="min-h-screen bg-brand-bg flex flex-col font-body">
       <AnnouncementBar />
@@ -59,16 +90,16 @@ export default function Cart() {
       
       <main className="flex-1 p-6 md:p-10 max-w-6xl mx-auto w-full">
         <div className="flex items-center gap-4 mb-8">
-          <Link to="/" className="text-brand-primary hover:text-brand-accent transition-colors">
+          <Link to="/" className="text-[#115E63] hover:text-brand-accent transition-colors">
             <ArrowLeft size={24} />
           </Link>
-          <h1 className="text-4xl font-heading text-brand-primary">Your Cart</h1>
+          <h1 className="text-4xl font-heading text-[#115E63]">Your Cart</h1>
         </div>
 
         {cart.length === 0 ? (
           <div className="text-center py-20 bg-brand-peach rounded-[16px] border border-brand-primary/10">
-            <p className="text-xl text-brand-primary mb-6 font-heading">Your cart is feeling a little empty.</p>
-            <Link to="/" className="bg-brand-primary text-brand-bg px-6 py-3 rounded-[10px] font-semibold hover:bg-brand-primary/90 transition-colors inline-block">
+            <p className="text-xl text-[#115E63] mb-6 font-heading">Your cart is feeling a little empty.</p>
+            <Link to="/" className="bg-[#115E63] text-brand-primary px-6 py-3 rounded-[10px] font-semibold hover:bg-[#115E63]/90 transition-colors inline-block">
               Start Shopping
             </Link>
           </div>
@@ -81,26 +112,26 @@ export default function Cart() {
                     {item.image_url ? (
                       <img src={item.image_url} alt={item.name} className="w-full h-full object-cover" />
                     ) : (
-                      <div className="w-full h-full flex items-center justify-center text-brand-primary/30 text-xs">No Image</div>
+                      <div className="w-full h-full flex items-center justify-center text-[#115E63]/30 text-xs">No Image</div>
                     )}
                   </div>
                   
                   <div className="flex-1 min-w-0">
-                    <h3 className="font-heading text-xl text-brand-primary truncate">{item.name}</h3>
-                    <p className="text-brand-primary font-bold mt-1">₹{item.price}</p>
+                    <h3 className="font-body font-bold text-xl text-[#115E63] truncate">{item.name}</h3>
+                    <p className="text-[#115E63] font-bold mt-1">₹{item.price}</p>
                     
                     <div className="flex items-center gap-4 mt-3">
                       <div className="flex items-center bg-brand-bg rounded-lg border border-brand-primary/20 w-fit">
                         <button 
                           onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                          className="p-2 text-brand-primary hover:bg-brand-primary/5 rounded-l-lg"
+                          className="p-2 text-[#115E63] hover:bg-brand-primary/5 rounded-l-lg"
                         >
                           <Minus size={16} />
                         </button>
-                        <span className="w-8 text-center font-bold text-brand-primary">{item.quantity}</span>
+                        <span className="w-8 text-center font-bold text-[#115E63]">{item.quantity}</span>
                         <button 
                           onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                          className="p-2 text-brand-primary hover:bg-brand-primary/5 rounded-r-lg"
+                          className="p-2 text-[#115E63] hover:bg-brand-primary/5 rounded-r-lg"
                         >
                           <Plus size={16} />
                         </button>
@@ -108,7 +139,7 @@ export default function Cart() {
                       
                       <button 
                         onClick={() => removeFromCart(item.id)}
-                        className="text-brand-primary/60 hover:text-brand-accent transition-colors p-2"
+                        className="text-[#115E63]/60 hover:text-brand-accent transition-colors p-2"
                         title="Remove item"
                       >
                         <Trash2 size={20} />
@@ -117,28 +148,79 @@ export default function Cart() {
                   </div>
                   
                   <div className="hidden sm:block text-right">
-                    <p className="text-sm text-brand-primary/70 mb-1">Total</p>
-                    <p className="font-bold text-brand-primary text-lg">₹{item.price * item.quantity}</p>
+                    <p className="text-sm text-[#115E63]/70 mb-1">Total</p>
+                    <p className="font-bold text-[#115E63] text-lg">₹{item.price * item.quantity}</p>
                   </div>
                 </div>
               ))}
             </div>
             
-            <div className="lg:w-80 h-fit bg-brand-peach p-6 rounded-[16px] shadow-sm sticky top-6">
-              <h2 className="text-2xl font-heading text-brand-primary mb-6">Order Summary</h2>
-              <div className="space-y-3 text-brand-primary mb-6">
+            <div className="lg:w-96 space-y-6">
+              {/* Customer Details Form */}
+              <div className="bg-brand-peach p-6 rounded-[16px] shadow-sm">
+                <h2 className="text-2xl font-heading text-[#115E63] mb-6">Your Details</h2>
+                <div className="space-y-4 text-[#115E63]">
+                  <div>
+                    <label className="block text-sm font-bold mb-1">Name *</label>
+                    <input 
+                      type="text" 
+                      value={customerDetails.name}
+                      onChange={(e) => setCustomerDetails({...customerDetails, name: e.target.value})}
+                      className="w-full px-4 py-2 bg-brand-bg border border-brand-primary/20 rounded-[10px] focus:outline-none focus:border-[#115E63]"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-bold mb-1">Phone Number *</label>
+                    <input 
+                      type="tel" 
+                      value={customerDetails.phone}
+                      onChange={(e) => setCustomerDetails({...customerDetails, phone: e.target.value})}
+                      className="w-full px-4 py-2 bg-brand-bg border border-brand-primary/20 rounded-[10px] focus:outline-none focus:border-[#115E63]"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-bold mb-1">Instagram ID (Optional)</label>
+                    <input 
+                      type="text" 
+                      value={customerDetails.instaId}
+                      onChange={(e) => setCustomerDetails({...customerDetails, instaId: e.target.value})}
+                      className="w-full px-4 py-2 bg-brand-bg border border-brand-primary/20 rounded-[10px] focus:outline-none focus:border-[#115E63]"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-bold mb-1">Delivery Address *</label>
+                    <textarea 
+                      value={customerDetails.address}
+                      onChange={(e) => setCustomerDetails({...customerDetails, address: e.target.value})}
+                      className="w-full px-4 py-2 bg-brand-bg border border-brand-primary/20 rounded-[10px] focus:outline-none focus:border-[#115E63] resize-none h-24"
+                      required
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Order Summary */}
+              <div className="bg-brand-peach p-6 rounded-[16px] shadow-sm sticky top-6">
+                <h2 className="text-2xl font-heading text-[#115E63] mb-6">Order Summary</h2>
+              <div className="space-y-3 text-[#115E63] mb-6">
                 <div className="flex justify-between">
                   <span>Subtotal</span>
                   <span className="font-bold">₹{cartTotal}</span>
                 </div>
-                <div className="flex justify-between text-sm text-brand-primary/70">
+                <div className="flex justify-between text-sm text-[#115E63]/70">
                   <span>Shipping</span>
-                  <span>Calculated at checkout</span>
+                  <span>
+                    {isFreeShipping 
+                      ? 'Free' 
+                      : shippingText.replace(/^Shipping\s+/i, '')}
+                  </span>
                 </div>
                 <div className="h-px bg-brand-primary/20 my-4"></div>
                 <div className="flex justify-between text-xl font-bold">
                   <span>Grand Total</span>
-                  <span>₹{cartTotal}</span>
+                  <span>₹{grandTotal}</span>
                 </div>
               </div>
               
@@ -147,13 +229,14 @@ export default function Cart() {
                 disabled={isProcessing || !whatsappNumber}
                 className={`w-full py-3 rounded-[10px] font-semibold transition-colors
                   ${!whatsappNumber 
-                    ? 'bg-brand-primary/50 text-brand-bg cursor-not-allowed' 
-                    : 'bg-brand-primary text-brand-bg hover:bg-brand-primary/90'
+                    ? 'bg-[#115E63]/50 text-brand-primary cursor-not-allowed' 
+                    : 'bg-[#115E63] text-brand-primary hover:bg-[#115E63]/90'
                   }`}
               >
-                {!whatsappNumber ? 'Setup Required' : (isProcessing ? 'Processing...' : 'Proceed to Checkout')}
+                {!whatsappNumber ? 'Setup Required' : (isProcessing ? 'Processing...' : 'Place Order')}
               </button>
             </div>
+          </div>
           </div>
         )}
       </main>

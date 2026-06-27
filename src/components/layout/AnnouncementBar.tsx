@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '../../services/supabase';
+import { MessageCircle } from 'lucide-react';
 
 interface SettingsData {
+  whatsapp_number: string;
   instagram_url: string;
   shipping_text: string;
   free_shipping_threshold: number | null;
@@ -14,7 +16,7 @@ export default function AnnouncementBar() {
     async function fetchSettings() {
       const { data } = await supabase
         .from('settings')
-        .select('instagram_url, shipping_text, free_shipping_threshold')
+        .select('whatsapp_number, instagram_url, shipping_text, free_shipping_threshold')
         .limit(1)
         .single();
       
@@ -30,24 +32,39 @@ export default function AnnouncementBar() {
     ? ` | Free shipping on orders above ₹${settings.free_shipping_threshold}` 
     : '';
   const instagramUrl = settings?.instagram_url || 'https://instagram.com';
+  const whatsappNumber = settings?.whatsapp_number || '';
 
   return (
-    <div className="bg-brand-primary text-brand-bg py-2 px-4 flex justify-between items-center text-sm">
-      <div className="flex-1 text-center">
+    <div className="bg-brand-primary text-[#115E63] py-2 px-4 flex justify-center items-center text-sm relative min-h-[40px]">
+      <div className="text-center px-16">
         {shippingText}{thresholdText} | Bulk orders accepted
       </div>
-      <a 
-        href={instagramUrl}
-        target="_blank" 
-        rel="noopener noreferrer"
-        className="hover:text-brand-accent transition-colors flex items-center justify-center"
-      >
-        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <rect width="20" height="20" x="2" y="2" rx="5" ry="5"/>
-          <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/>
-          <line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/>
-        </svg>
-      </a>
+      <div className="absolute right-4 flex items-center gap-4">
+        {whatsappNumber && (
+          <a 
+            href={`https://wa.me/${whatsappNumber.replace(/[^0-9]/g, '')}?text=${encodeURIComponent('Hey looking to buy cute and unique jewelery and crafts')}`}
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="hover:opacity-70 transition-opacity flex items-center justify-center"
+            title="WhatsApp Us"
+          >
+            <MessageCircle size={18} />
+          </a>
+        )}
+        <a 
+          href={instagramUrl}
+          target="_blank" 
+          rel="noopener noreferrer"
+          className="hover:opacity-70 transition-opacity flex items-center justify-center"
+          title="Instagram"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <rect width="20" height="20" x="2" y="2" rx="5" ry="5"/>
+            <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/>
+            <line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/>
+          </svg>
+        </a>
+      </div>
     </div>
   );
 }

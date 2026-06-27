@@ -27,19 +27,19 @@ export default function Dashboard() {
 
   return (
     <AdminLayout>
-      <h1 className="text-4xl font-heading text-brand-primary mb-8">Dashboard</h1>
+      <h1 className="text-4xl font-heading text-[#115E63] mb-8">Dashboard</h1>
       
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="bg-brand-peach p-6 rounded-[16px] shadow-sm">
-          <h2 className="text-lg text-brand-primary/70 mb-2 font-bold">Total Products</h2>
-          <p className="text-4xl font-heading text-brand-primary">{productCount}</p>
+          <h2 className="text-lg text-[#115E63]/70 mb-2 font-bold">Total Products</h2>
+          <p className="text-4xl font-heading text-[#115E63]">{productCount}</p>
         </div>
         <div className="bg-brand-peach p-6 rounded-[16px] shadow-sm">
-          <h2 className="text-lg text-brand-primary/70 mb-2 font-bold">Categories</h2>
-          <p className="text-4xl font-heading text-brand-primary">{categoryCount}</p>
+          <h2 className="text-lg text-[#115E63]/70 mb-2 font-bold">Categories</h2>
+          <p className="text-4xl font-heading text-[#115E63]">{categoryCount}</p>
         </div>
         <div className="bg-brand-peach p-6 rounded-[16px] shadow-sm">
-          <h2 className="text-lg text-brand-primary/70 mb-2 font-bold">Store Status</h2>
+          <h2 className="text-lg text-[#115E63]/70 mb-2 font-bold">Store Status</h2>
           <p className="text-xl font-heading text-brand-green">Active</p>
         </div>
       </div>

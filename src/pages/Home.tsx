@@ -98,24 +98,24 @@ export default function Home() {
     >
       <div className="max-w-6xl mx-auto relative">
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4">
-          <h1 className="text-4xl font-heading text-brand-primary">Our Collection</h1>
+          <h1 className="text-4xl font-heading text-[#115E63]">Our Collection</h1>
           
           <div className="flex flex-col sm:flex-row gap-4">
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-brand-primary/50" size={18} />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#115E63]/50" size={18} />
               <input 
                 type="text" 
                 placeholder="Search products..." 
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 pr-4 py-2 w-full sm:w-64 bg-brand-bg border border-brand-primary rounded-[10px] text-brand-primary focus:outline-none focus:ring-2 focus:ring-brand-accent transition-all"
+                className="pl-10 pr-4 py-2 w-full sm:w-64 bg-brand-bg border border-brand-primary rounded-[10px] text-[#115E63] focus:outline-none focus:ring-2 focus:ring-brand-accent transition-all"
               />
             </div>
             
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value as SortOption)}
-              className="pl-4 pr-10 py-2 bg-brand-bg border border-brand-primary rounded-[10px] text-brand-primary focus:outline-none focus:ring-2 focus:ring-brand-accent transition-all cursor-pointer"
+              className="pl-4 pr-10 py-2 bg-brand-bg border border-brand-primary rounded-[10px] text-[#115E63] focus:outline-none focus:ring-2 focus:ring-brand-accent transition-all cursor-pointer"
             >
               <option value="newest">Newest First</option>
               <option value="price_asc">Price: Low to High</option>
@@ -137,13 +137,13 @@ export default function Home() {
         )}
 
         {error && (
-          <div className="bg-brand-peach border border-brand-accent text-brand-primary p-4 rounded-xl text-center">
+          <div className="bg-brand-peach border border-brand-accent text-[#115E63] p-4 rounded-xl text-center">
             {error}
           </div>
         )}
 
         {!isLoading && !error && products.length === 0 && (
-          <div className="text-center py-20 text-brand-primary/70">
+          <div className="text-center py-20 text-[#115E63]/70">
             No products match your criteria.
           </div>
         )}
@@ -157,7 +157,7 @@ export default function Home() {
               <div key={product.id} className="bg-brand-peach rounded-[16px] p-4 shadow-sm hover:shadow-md transition-shadow flex flex-col relative group">
                 <div className="aspect-square bg-brand-bg rounded-xl mb-4 overflow-hidden flex items-center justify-center relative">
                   {product.featured && (
-                    <div className="absolute top-2 right-2 z-10 bg-brand-accent text-brand-primary text-[10px] uppercase tracking-widest font-bold px-3 py-1 rounded-full shadow-md">
+                    <div className="absolute top-2 right-2 z-10 bg-brand-accent text-[#115E63] text-[10px] uppercase tracking-widest font-bold px-3 py-1 rounded-full shadow-md">
                       Featured
                     </div>
                   )}
@@ -168,13 +168,13 @@ export default function Home() {
                       className="w-full h-full object-cover"
                     />
                   ) : (
-                    <span className="text-brand-primary/30 text-sm">No Image</span>
+                    <span className="text-[#115E63]/30 text-sm">No Image</span>
                   )}
                 </div>
-                <h3 className="font-heading text-lg md:text-xl text-brand-primary mb-1 line-clamp-2">{product.name}</h3>
+                <h3 className="font-body font-bold text-lg md:text-xl text-[#115E63] mb-1 line-clamp-2">{product.name}</h3>
                 <div className="mt-auto pt-4">
                   <div className="flex flex-col xl:flex-row justify-between xl:items-center gap-3">
-                    <span className="font-bold text-brand-primary text-lg">₹{product.price}</span>
+                    <span className="font-bold text-[#115E63] text-lg">₹{product.price}</span>
                     {cartItem ? (
                       <div className="flex items-center justify-between bg-brand-bg rounded-[10px] border border-brand-primary/20 w-full xl:w-auto overflow-hidden">
                         <button 
@@ -186,14 +186,14 @@ export default function Home() {
                               toast.success(`Removed from cart`);
                             }
                           }}
-                          className="px-3 py-2 text-brand-primary hover:bg-brand-primary/10 transition-colors"
+                          className="px-3 py-2 text-[#115E63] hover:bg-brand-primary/10 transition-colors"
                         >
                           <Minus size={16} />
                         </button>
-                        <span className="font-bold text-brand-primary text-sm px-2 w-6 text-center">{cartItem.quantity}</span>
+                        <span className="font-bold text-[#115E63] text-sm px-2 w-6 text-center">{cartItem.quantity}</span>
                         <button 
                           onClick={() => updateQuantity(product.id, cartItem.quantity + 1)}
-                          className="px-3 py-2 text-brand-primary hover:bg-brand-primary/10 transition-colors"
+                          className="px-3 py-2 text-[#115E63] hover:bg-brand-primary/10 transition-colors"
                         >
                           <Plus size={16} />
                         </button>
@@ -201,7 +201,7 @@ export default function Home() {
                     ) : (
                       <button 
                         onClick={() => handleAddToCart(product)}
-                        className="bg-brand-primary text-brand-bg px-3 py-2 rounded-[10px] text-sm font-semibold hover:bg-brand-primary/90 transition-colors w-full xl:w-auto flex-shrink-0"
+                        className="bg-[#115E63] text-brand-primary px-3 py-2 rounded-[10px] text-sm font-semibold hover:bg-[#115E63]/90 transition-colors flex-1 xl:flex-none flex-shrink-0"
                       >
                         Add to Cart
                       </button>

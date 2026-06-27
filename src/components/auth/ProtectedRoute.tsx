@@ -7,7 +7,7 @@ export default function ProtectedRoute() {
   if (isLoading) {
     return (
       <div className="min-h-screen bg-brand-bg flex items-center justify-center">
-        <div className="animate-pulse text-brand-primary text-xl font-heading">Loading...</div>
+        <div className="animate-pulse text-[#115E63] text-xl font-heading">Loading...</div>
       </div>
     );
   }
