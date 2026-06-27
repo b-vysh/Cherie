@@ -46,9 +46,10 @@ export default function Cart() {
     const encodedMessage = encodeURIComponent(message);
     const cleanNumber = whatsappNumber.replace(/\D/g, ''); // Remove non-numeric characters
     
-    window.open(`https://wa.me/${cleanNumber}?text=${encodedMessage}`, '_blank');
+    // Use window.location.href instead of window.open to prevent mobile popup blockers
+    window.location.href = `https://wa.me/${cleanNumber}?text=${encodedMessage}`;
     
-    setTimeout(() => setIsProcessing(false), 500); // Reset processing state quickly
+    setTimeout(() => setIsProcessing(false), 1000); // Reset processing state
   };
 
   return (
