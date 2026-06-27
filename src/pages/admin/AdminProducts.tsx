@@ -125,7 +125,7 @@ export default function AdminProducts() {
         </div>
 
         {/* Data Table Wrapper */}
-        <div className="overflow-x-auto flex-1">
+        <div className="overflow-x-auto w-full flex-1 min-h-[400px]">
           {isLoading ? (
             <div className="py-20 text-center text-brand-primary animate-pulse font-bold">Loading products...</div>
           ) : filteredProducts.length === 0 ? (

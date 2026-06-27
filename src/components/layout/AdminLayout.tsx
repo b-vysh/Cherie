@@ -60,19 +60,39 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 flex flex-col h-screen overflow-hidden">
+      <main className="flex-1 flex flex-col h-screen overflow-hidden pb-16 md:pb-0">
         {/* Mobile Header */}
-        <header className="md:hidden bg-brand-primary text-brand-bg p-4 flex justify-between items-center">
-          <span className="font-heading text-xl">Admin Panel</span>
-          <button onClick={handleLogout}>
-            <LogOut size={24} />
+        <header className="md:hidden bg-brand-primary text-brand-bg p-4 flex justify-between items-center shadow-sm z-10 relative">
+          <Link to="/" className="font-heading text-xl">Admin Panel</Link>
+          <button onClick={handleLogout} className="p-2 hover:bg-brand-bg/10 rounded-lg">
+            <LogOut size={20} />
           </button>
         </header>
 
-        <div className="flex-1 overflow-y-auto p-6 md:p-10">
+        <div className="flex-1 overflow-y-auto p-4 md:p-10">
           {children}
         </div>
       </main>
+
+      {/* Mobile Bottom Navigation */}
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-brand-primary text-brand-bg border-t border-brand-bg/10 flex justify-around items-center h-16 z-50">
+        {navItems.map((item) => {
+          const Icon = item.icon;
+          const isActive = location.pathname === item.path || (location.pathname.startsWith(item.path) && item.path !== '/admin');
+          return (
+            <Link
+              key={item.name}
+              to={item.path}
+              className={`flex flex-col items-center justify-center w-full h-full space-y-1 transition-colors ${
+                isActive ? 'text-brand-accent font-bold' : 'text-brand-bg/70 hover:text-brand-bg'
+              }`}
+            >
+              <Icon size={20} />
+              <span className="text-[10px]">{item.name}</span>
+            </Link>
+          );
+        })}
+      </nav>
     </div>
   );
 }
