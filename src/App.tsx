@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
+import { Analytics } from '@vercel/analytics/react';
 import Home from './pages/Home';
 import Cart from './pages/Cart';
 import Login from './pages/admin/Login';
@@ -49,6 +50,7 @@ function App() {
               <Route path="settings" element={<AdminSettings />} />
             </Route>
           </Routes>
+          <Analytics />
         </BrowserRouter>
       </CartProvider>
     </AuthProvider>
