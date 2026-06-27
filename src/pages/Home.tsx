@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Search, Plus, Minus } from 'lucide-react';
+import { Search, Plus, Minus, X } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import MainLayout from '../components/layout/MainLayout';
 import { supabase } from '../services/supabase';
@@ -22,6 +22,8 @@ export default function Home() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+
   const { addToCart, cart, updateQuantity, removeFromCart } = useCart();
 
   // Fetch Categories
@@ -153,7 +155,10 @@ export default function Home() {
               
               return (
               <div key={product.id} className="bg-brand-peach rounded-[16px] p-4 shadow-sm hover:shadow-md transition-shadow flex flex-col relative group">
-                <div className="aspect-square bg-brand-bg rounded-xl mb-4 overflow-hidden flex items-center justify-center relative">
+                <div 
+                  className={`aspect-square bg-brand-bg rounded-xl mb-4 overflow-hidden flex items-center justify-center relative ${product.image_url ? 'cursor-pointer hover:opacity-90 transition-opacity' : ''}`}
+                  onClick={() => product.image_url && setSelectedImage(product.image_url)}
+                >
                   {product.featured && (
                     <div className="absolute top-2 right-2 z-10 bg-brand-accent text-[#115E63] text-[10px] uppercase tracking-widest font-bold px-3 py-1 rounded-full shadow-md">
                       Featured
@@ -211,6 +216,30 @@ export default function Home() {
           </div>
         )}
       </div>
+
+      {/* Image Modal */}
+      {selectedImage && (
+        <div 
+          className="fixed inset-0 z-[100] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4"
+          onClick={() => setSelectedImage(null)}
+        >
+          <button 
+            className="absolute top-4 right-4 md:top-8 md:right-8 text-white hover:text-brand-primary transition-colors p-2"
+            onClick={(e) => {
+              e.stopPropagation();
+              setSelectedImage(null);
+            }}
+          >
+            <X size={32} />
+          </button>
+          <img 
+            src={selectedImage} 
+            alt="Product full view" 
+            className="max-w-full max-h-[90vh] object-contain rounded-lg shadow-2xl"
+            onClick={(e) => e.stopPropagation()} // Prevent closing when clicking the image itself
+          />
+        </div>
+      )}
     </MainLayout>
   );
 }

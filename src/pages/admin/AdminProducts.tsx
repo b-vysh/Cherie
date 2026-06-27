@@ -174,7 +174,7 @@ export default function AdminProducts() {
                         onClick={() => toggleVisibility(product)}
                         className={`inline-flex items-center gap-1 font-bold text-sm px-3 py-1 rounded-full transition-colors ${
                           product.visible 
-                            ? 'text-brand-green bg-brand-green/10 hover:bg-brand-green/20' 
+                            ? 'text-[#115E63] bg-[#115E63]/10 hover:bg-[#115E63]/20' 
                             : 'text-[#115E63]/50 bg-brand-primary/5 hover:bg-brand-primary/10'
                         }`}
                         title={product.visible ? "Click to hide from store" : "Click to show on store"}
@@ -196,7 +196,7 @@ export default function AdminProducts() {
                       </button>
                       <button 
                         onClick={() => handleDelete(product.id, product.name)}
-                        className="p-2 text-brand-accent hover:bg-brand-accent/10 rounded-lg transition-colors inline-flex"
+                        className="p-2 text-[#115E63] hover:bg-[#115E63]/10 rounded-lg transition-colors inline-flex"
                         title="Delete"
                       >
                         <Trash2 size={18} />
