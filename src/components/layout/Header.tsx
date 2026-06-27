@@ -13,14 +13,7 @@ export default function Header({ onMenuClick }: HeaderProps) {
 
   return (
     <header className="bg-brand-bg relative border-b border-brand-primary/10">
-      {onMenuClick && (
-        <button 
-          className="md:hidden absolute left-4 top-4 text-[#115E63] z-10 bg-brand-bg/80 p-2 rounded-lg"
-          onClick={onMenuClick}
-        >
-          <Menu size={24} />
-        </button>
-      )}
+
       
       <div className="w-full relative">
         <Link to="/">

@@ -54,11 +54,9 @@ export default function Home() {
           query = query.ilike('name', `%${searchQuery.trim()}%`);
         }
 
-        // Always push featured to the top
-        query = query.order('featured', { ascending: false });
-
         if (sortBy === 'newest') {
-          query = query.order('created_at', { ascending: false });
+          // Keep featured on top for default view, then newest
+          query = query.order('featured', { ascending: false }).order('created_at', { ascending: false });
         } else if (sortBy === 'price_asc') {
           query = query.order('price', { ascending: true });
         } else if (sortBy === 'price_desc') {
