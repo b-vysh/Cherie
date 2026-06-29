@@ -107,7 +107,7 @@ export default function Sidebar({ isOpen, onClose, categories, selectedCategoryI
               <span className="font-semibold text-sm">cherie.io_</span>
             </a>
             <a 
-              href={settings?.whatsapp ? `https://wa.me/${settings.whatsapp.replace(/[^0-9]/g, '')}` : '#'}
+              href={settings?.whatsapp ? `https://wa.me/${settings.whatsapp.replace(/[^0-9]/g, '')}?text=${encodeURIComponent('Hi CHERIE! I absolutely love your collection and would like to inquire about some products. Looking forward to hearing from you!')}` : '#'}
               target="_blank"
               rel="noopener noreferrer" 
               className="flex items-center gap-3 text-[#115E63] hover:opacity-70 transition-opacity"

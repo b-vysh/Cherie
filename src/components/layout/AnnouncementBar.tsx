@@ -42,7 +42,7 @@ export default function AnnouncementBar() {
       <div className="absolute right-4 flex items-center gap-4">
         {whatsappNumber && (
           <a 
-            href={`https://wa.me/${whatsappNumber.replace(/[^0-9]/g, '')}?text=${encodeURIComponent('Hey looking to buy cute and unique jewelery and crafts')}`}
+            href={`https://wa.me/${whatsappNumber.replace(/[^0-9]/g, '')}?text=${encodeURIComponent('Hi CHERIE! I absolutely love your collection and would like to inquire about some products. Looking forward to hearing from you!')}`}
             target="_blank" 
             rel="noopener noreferrer"
             className="hover:opacity-70 transition-opacity flex items-center justify-center"
