@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Search, Plus, Minus, X } from 'lucide-react';
+import { useSearchParams } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
 import MainLayout from '../components/layout/MainLayout';
 import { supabase } from '../services/supabase';
@@ -15,7 +16,18 @@ export default function Home() {
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const selectedCategory = searchParams.get('category');
+  
+  const setSelectedCategory = (id: string | null) => {
+    const newParams = new URLSearchParams(searchParams);
+    if (id) {
+      newParams.set('category', id);
+    } else {
+      newParams.delete('category');
+    }
+    setSearchParams(newParams);
+  };
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState<SortOption>('newest');
   
@@ -88,6 +100,10 @@ export default function Home() {
     toast.success(`Added ${product.name} to cart!`);
   };
 
+  const categoryName = selectedCategory 
+    ? categories.find(c => c.id === selectedCategory)?.name || 'Our Collection'
+    : 'Our Collection';
+
   return (
     <MainLayout 
       sidebarProps={{
@@ -98,7 +114,7 @@ export default function Home() {
     >
       <div className="max-w-6xl mx-auto relative">
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4">
-          <h1 className="text-4xl font-heading text-[#115E63]">Our Collection</h1>
+          <h1 className="text-4xl font-heading text-[#115E63]">{categoryName}</h1>
           
           <div className="flex flex-col sm:flex-row gap-4">
             <div className="relative">

@@ -18,7 +18,7 @@ export default function MainLayout({ children, sidebarProps }: MainLayoutProps) 
       <Header />
 
       {/* Sticky Mobile Navbar */}
-      <div className="md:hidden sticky top-0 z-40 bg-brand-bg/95 backdrop-blur-sm border-b border-brand-primary/20 p-4 flex items-center justify-between shadow-sm">
+      <div className="lg:hidden sticky top-0 z-40 bg-brand-bg/95 backdrop-blur-sm border-b border-brand-primary/20 p-4 flex items-center justify-between shadow-sm">
         <button 
           className="text-[#115E63] p-1 rounded-md hover:bg-brand-primary/10 transition-colors"
           onClick={() => setIsSidebarOpen(true)}
@@ -32,7 +32,7 @@ export default function MainLayout({ children, sidebarProps }: MainLayoutProps) 
       
       <div className="flex-1 flex items-start">
         {/* Sticky wrapper for desktop sidebar */}
-        <div className="hidden md:block sticky top-0 h-screen">
+        <div className="hidden lg:block sticky top-0 h-screen">
           <Sidebar 
             isOpen={isSidebarOpen} 
             onClose={() => setIsSidebarOpen(false)} 
@@ -41,7 +41,7 @@ export default function MainLayout({ children, sidebarProps }: MainLayoutProps) 
         </div>
 
         {/* Mobile sidebar handles its own fixed positioning */}
-        <div className="md:hidden">
+        <div className="lg:hidden">
           <Sidebar 
             isOpen={isSidebarOpen} 
             onClose={() => setIsSidebarOpen(false)} 
@@ -49,7 +49,7 @@ export default function MainLayout({ children, sidebarProps }: MainLayoutProps) 
           />
         </div>
         
-        <main className="flex-1 p-6 md:p-8">
+        <main className="flex-1 p-6 lg:p-8">
           {children}
         </main>
       </div>
