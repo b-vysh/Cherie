@@ -8,14 +8,15 @@ import Header from '../components/layout/Header';
 import { supabase } from '../services/supabase';
 
 export default function Cart() {
-  const { cart, removeFromCart, updateQuantity, cartTotal, clearCart } = useCart();
+  const { cart, removeFromCart, updateQuantity, cartTotal, clearCart, updateCustomMessage } = useCart();
   const [whatsappNumber, setWhatsappNumber] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [customerDetails, setCustomerDetails] = useState({
     name: '',
     phone: '',
     instaId: '',
-    address: ''
+    address: '',
+    orderNotes: ''
   });
 
   const [shippingText, setShippingText] = useState<string>('Shipping ₹80');
@@ -67,8 +68,17 @@ export default function Cart() {
     
     message += `*Order Items*\n`;
     cart.forEach(item => {
-      message += `- ${item.name} x${item.quantity} (₹${item.price * item.quantity})\n`;
+      let itemLine = `- ${item.name}`;
+      if (item.variant) {
+        itemLine += ` [${item.variant}]`;
+      }
+      itemLine += ` x${item.quantity} (₹${item.price * item.quantity})\n`;
+      message += itemLine;
     });
+    
+    if (customerDetails.orderNotes.trim()) {
+      message += `\n*Order Notes*\n${customerDetails.orderNotes.trim()}\n`;
+    }
     
     message += `\n*Subtotal: ₹${cartTotal}*\n`;
     message += `*Shipping: ${actualShippingCost === 0 ? 'Free' : `₹${actualShippingCost}`}*\n`;
@@ -116,7 +126,7 @@ export default function Cart() {
           <div className="flex flex-col lg:flex-row gap-8">
             <div className="flex-1 space-y-4">
               {cart.map((item) => (
-                <div key={item.id} className="bg-brand-peach p-4 rounded-[16px] flex gap-4 items-center shadow-sm">
+                <div key={item.cartItemId} className="bg-brand-peach p-4 rounded-[16px] flex gap-4 items-center shadow-sm">
                   <div className="w-24 h-24 bg-brand-bg rounded-xl overflow-hidden flex-shrink-0">
                     {item.image_url ? (
                       <img src={item.image_url} alt={item.name} className="w-full h-full object-cover" />
@@ -127,32 +137,44 @@ export default function Cart() {
                   
                   <div className="flex-1 min-w-0">
                     <h3 className="font-body font-bold text-xl text-[#115E63] truncate">{item.name}</h3>
+                    {item.variant && (
+                      <p className="text-sm text-[#115E63]/70 font-bold mb-1">Variant: {item.variant}</p>
+                    )}
                     <p className="text-[#115E63] font-bold mt-1">₹{item.price}</p>
                     
-                    <div className="flex items-center gap-4 mt-3">
-                      <div className="flex items-center bg-brand-bg rounded-lg border border-brand-primary/20 w-fit">
+                    <div className="mt-3">
+                      <div className="flex items-center gap-4">
+                        <div className="flex items-center bg-brand-bg rounded-lg border border-brand-primary/20 w-fit">
+                          <button 
+                            onClick={() => updateQuantity(item.cartItemId, item.quantity - 1)}
+                            className="p-2 text-[#115E63] hover:bg-brand-primary/5 rounded-l-lg"
+                          >
+                            <Minus size={16} />
+                          </button>
+                          <span className="w-8 text-center font-bold text-[#115E63]">{item.quantity}</span>
+                          <button 
+                            onClick={() => {
+                              if (item.quantity < item.stock) {
+                                updateQuantity(item.cartItemId, item.quantity + 1);
+                              } else {
+                                toast.error(`Only ${item.stock} available in stock`);
+                              }
+                            }}
+                            disabled={item.quantity >= item.stock}
+                            className={`p-2 transition-colors rounded-r-lg ${item.quantity >= item.stock ? 'text-[#115E63]/30 cursor-not-allowed' : 'text-[#115E63] hover:bg-brand-primary/5'}`}
+                          >
+                            <Plus size={16} />
+                          </button>
+                        </div>
+                        
                         <button 
-                          onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                          className="p-2 text-[#115E63] hover:bg-brand-primary/5 rounded-l-lg"
+                          onClick={() => removeFromCart(item.cartItemId)}
+                          className="text-[#115E63]/60 hover:text-brand-accent transition-colors p-2"
+                          title="Remove item"
                         >
-                          <Minus size={16} />
-                        </button>
-                        <span className="w-8 text-center font-bold text-[#115E63]">{item.quantity}</span>
-                        <button 
-                          onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                          className="p-2 text-[#115E63] hover:bg-brand-primary/5 rounded-r-lg"
-                        >
-                          <Plus size={16} />
+                          <Trash2 size={20} />
                         </button>
                       </div>
-                      
-                      <button 
-                        onClick={() => removeFromCart(item.id)}
-                        className="text-[#115E63]/60 hover:text-brand-accent transition-colors p-2"
-                        title="Remove item"
-                      >
-                        <Trash2 size={20} />
-                      </button>
                     </div>
                   </div>
                   
@@ -206,6 +228,15 @@ export default function Cart() {
                       onChange={(e) => setCustomerDetails({...customerDetails, address: e.target.value})}
                       className="w-full px-4 py-2 bg-brand-bg border border-brand-primary/20 rounded-[10px] focus:outline-none focus:border-[#115E63] resize-none h-24"
                       required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-bold mb-1">Order Notes / Customizations (Optional)</label>
+                    <textarea 
+                      value={customerDetails.orderNotes}
+                      onChange={(e) => setCustomerDetails({...customerDetails, orderNotes: e.target.value})}
+                      placeholder="e.g. For the Gold necklace, please make it 18 inches"
+                      className="w-full px-4 py-2 bg-brand-bg border border-brand-primary/20 rounded-[10px] focus:outline-none focus:border-[#115E63] resize-none h-20 placeholder:text-[#115E63]/40"
                     />
                   </div>
                 </div>

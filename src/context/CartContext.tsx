@@ -4,14 +4,18 @@ import type { Database } from '../types/database.types';
 type Product = Database['public']['Tables']['products']['Row'];
 
 export interface CartItem extends Product {
+  cartItemId: string;
   quantity: number;
+  variant?: string | null;
+  customMessage?: string;
 }
 
 interface CartContextType {
   cart: CartItem[];
-  addToCart: (product: Product) => void;
-  removeFromCart: (productId: string) => void;
-  updateQuantity: (productId: string, quantity: number) => void;
+  addToCart: (product: Product, variant?: string | null, customMessage?: string) => void;
+  removeFromCart: (cartItemId: string) => void;
+  updateQuantity: (cartItemId: string, quantity: number) => void;
+  updateCustomMessage: (cartItemId: string, customMessage: string) => void;
   clearCart: () => void;
   totalItems: number;
   cartTotal: number;
@@ -33,26 +37,41 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     localStorage.setItem('cherie_cart', JSON.stringify(cart));
   }, [cart]);
 
-  const addToCart = (product: Product) => {
+  const addToCart = (product: Product, variant: string | null = null, customMessage: string = '') => {
     setCart(prev => {
-      const existing = prev.find(item => item.id === product.id);
+      const existing = prev.find(item => 
+        item.id === product.id && 
+        item.variant === variant && 
+        item.customMessage === customMessage
+      );
+      
       if (existing) {
+        if (existing.quantity >= product.stock) return prev;
         return prev.map(item => 
-          item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item
+          item.cartItemId === existing.cartItemId ? { ...item, quantity: item.quantity + 1 } : item
         );
       }
-      return [...prev, { ...product, quantity: 1 }];
+      if (product.stock <= 0) return prev;
+      
+      const cartItemId = `${product.id}-${Date.now()}`;
+      return [...prev, { ...product, cartItemId, quantity: 1, variant, customMessage }];
     });
   };
 
-  const removeFromCart = (productId: string) => {
-    setCart(prev => prev.filter(item => item.id !== productId));
+  const removeFromCart = (cartItemId: string) => {
+    setCart(prev => prev.filter(item => item.cartItemId !== cartItemId));
   };
 
-  const updateQuantity = (productId: string, quantity: number) => {
+  const updateQuantity = (cartItemId: string, quantity: number) => {
     if (quantity < 1) return;
     setCart(prev => prev.map(item => 
-      item.id === productId ? { ...item, quantity } : item
+      item.cartItemId === cartItemId ? { ...item, quantity } : item
+    ));
+  };
+
+  const updateCustomMessage = (cartItemId: string, customMessage: string) => {
+    setCart(prev => prev.map(item => 
+      item.cartItemId === cartItemId ? { ...item, customMessage } : item
     ));
   };
 
@@ -62,7 +81,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const cartTotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
 
   return (
-    <CartContext.Provider value={{ cart, addToCart, removeFromCart, updateQuantity, clearCart, totalItems, cartTotal }}>
+    <CartContext.Provider value={{ cart, addToCart, removeFromCart, updateQuantity, updateCustomMessage, clearCart, totalItems, cartTotal }}>
       {children}
     </CartContext.Provider>
   );

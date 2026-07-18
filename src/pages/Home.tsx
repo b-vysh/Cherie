@@ -35,6 +35,7 @@ export default function Home() {
   const [error, setError] = useState<string | null>(null);
   
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [selectedVariants, setSelectedVariants] = useState<Record<string, string>>({});
 
   const { addToCart, cart, updateQuantity, removeFromCart } = useCart();
 
@@ -95,9 +96,13 @@ export default function Home() {
     return () => clearTimeout(timeoutId);
   }, [selectedCategory, searchQuery, sortBy]);
 
-  const handleAddToCart = (product: Product) => {
-    addToCart(product);
-    toast.success(`Added ${product.name} to cart!`);
+  const handleVariantChange = (productId: string, variant: string) => {
+    setSelectedVariants(prev => ({ ...prev, [productId]: variant }));
+  };
+
+  const handleAddToCart = (product: Product, variant: string | null = null) => {
+    addToCart(product, variant, '');
+    toast.success(`Added ${product.name}${variant ? ` (${variant})` : ''} to cart!`);
   };
 
   const categoryName = selectedCategory 
@@ -167,7 +172,14 @@ export default function Home() {
         {!isLoading && !error && products.length > 0 && (
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
             {products.map((product) => {
-              const cartItem = cart.find(item => item.id === product.id);
+              const variants = product.variants ? product.variants.split(',').map(v => v.trim()).filter(Boolean) : [];
+              const hasVariants = variants.length > 0;
+              const currentVariant = hasVariants ? (selectedVariants[product.id] || variants[0]) : null;
+              
+              const cartItem = cart.find(item => 
+                item.id === product.id && 
+                (!hasVariants || item.variant === currentVariant)
+              );
               
               return (
               <div key={product.id} className="bg-brand-peach rounded-[16px] p-4 shadow-sm hover:shadow-md transition-shadow flex flex-col relative group">
@@ -178,6 +190,13 @@ export default function Home() {
                   {product.featured && (
                     <div className="absolute top-2 right-2 z-10 bg-brand-accent text-[#115E63] text-[10px] uppercase tracking-widest font-bold px-3 py-1 rounded-full shadow-md">
                       Featured
+                    </div>
+                  )}
+                  {product.stock === 0 && (
+                    <div className="absolute inset-0 z-20 bg-brand-bg/60 backdrop-blur-[2px] flex items-center justify-center pointer-events-none">
+                      <span className="bg-brand-bg text-[#115E63] font-bold px-4 py-2 rounded-full border border-brand-primary shadow-sm text-sm transform -rotate-12">
+                        Sold Out
+                      </span>
                     </div>
                   )}
                   {product.image_url ? (
@@ -191,6 +210,19 @@ export default function Home() {
                   )}
                 </div>
                 <h3 className="font-body font-bold text-lg md:text-xl text-[#115E63] mb-1 line-clamp-2">{product.name}</h3>
+                
+                {hasVariants && (
+                  <select 
+                    value={currentVariant || ''}
+                    onChange={(e) => handleVariantChange(product.id, e.target.value)}
+                    className="w-full mt-2 bg-brand-bg border border-brand-primary/20 rounded-[10px] px-3 py-2 text-sm text-[#115E63] focus:outline-none focus:ring-2 focus:ring-brand-accent transition-all cursor-pointer"
+                  >
+                    {variants.map(v => (
+                      <option key={v} value={v}>{v}</option>
+                    ))}
+                  </select>
+                )}
+                
                 <div className="mt-auto pt-4">
                   <div className="flex flex-col xl:flex-row justify-between xl:items-center gap-3">
                     <span className="font-bold text-[#115E63] text-lg">₹{product.price}</span>
@@ -199,9 +231,9 @@ export default function Home() {
                         <button 
                           onClick={() => {
                             if (cartItem.quantity > 1) {
-                              updateQuantity(product.id, cartItem.quantity - 1);
+                              updateQuantity(cartItem.cartItemId, cartItem.quantity - 1);
                             } else {
-                              removeFromCart(product.id);
+                              removeFromCart(cartItem.cartItemId);
                               toast.success(`Removed from cart`);
                             }
                           }}
@@ -211,15 +243,29 @@ export default function Home() {
                         </button>
                         <span className="font-bold text-[#115E63] text-sm px-2 w-6 text-center">{cartItem.quantity}</span>
                         <button 
-                          onClick={() => updateQuantity(product.id, cartItem.quantity + 1)}
-                          className="px-3 py-2 text-[#115E63] hover:bg-brand-primary/10 transition-colors"
+                          onClick={() => {
+                            if (cartItem.quantity < product.stock) {
+                              updateQuantity(cartItem.cartItemId, cartItem.quantity + 1);
+                            } else {
+                              toast.error(`Only ${product.stock} available in stock`);
+                            }
+                          }}
+                          disabled={cartItem.quantity >= product.stock}
+                          className={`px-3 py-2 transition-colors ${cartItem.quantity >= product.stock ? 'text-[#115E63]/30 cursor-not-allowed' : 'text-[#115E63] hover:bg-brand-primary/10'}`}
                         >
                           <Plus size={16} />
                         </button>
                       </div>
+                    ) : product.stock === 0 ? (
+                      <button 
+                        disabled
+                        className="bg-brand-primary/30 text-[#115E63]/50 px-3 py-2 rounded-[10px] text-sm font-semibold flex-1 xl:flex-none flex-shrink-0 cursor-not-allowed"
+                      >
+                        Sold Out
+                      </button>
                     ) : (
                       <button 
-                        onClick={() => handleAddToCart(product)}
+                        onClick={() => handleAddToCart(product, currentVariant)}
                         className="bg-[#115E63] text-brand-primary px-3 py-2 rounded-[10px] text-sm font-semibold hover:bg-[#115E63]/90 transition-colors flex-1 xl:flex-none flex-shrink-0"
                       >
                         Add to Cart

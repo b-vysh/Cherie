@@ -36,6 +36,8 @@ export interface Database {
           category_id: string | null
           visible: boolean
           featured: boolean
+          stock: number
+          variants: string | null
           created_at: string
         }
         Insert: {
@@ -47,6 +49,8 @@ export interface Database {
           category_id?: string | null
           visible?: boolean
           featured?: boolean
+          stock?: number
+          variants?: string | null
           created_at?: string
         }
         Update: {
@@ -58,6 +62,8 @@ export interface Database {
           category_id?: string | null
           visible?: boolean
           featured?: boolean
+          stock?: number
+          variants?: string | null
           created_at?: string
         }
       }

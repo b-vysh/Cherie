@@ -136,6 +136,7 @@ export default function AdminProducts() {
                 <tr className="border-b border-brand-primary/10 text-[#115E63]">
                   <th className="py-4 px-4 font-heading text-lg">Product</th>
                   <th className="py-4 px-4 font-heading text-lg">Price</th>
+                  <th className="py-4 px-4 font-heading text-lg">Stock</th>
                   <th className="py-4 px-4 font-heading text-lg">Category</th>
                   <th className="py-4 px-4 font-heading text-lg">Status</th>
                   <th className="py-4 px-4 font-heading text-lg text-right">Actions</th>
@@ -164,6 +165,11 @@ export default function AdminProducts() {
                       </div>
                     </td>
                     <td className="py-4 px-4 font-bold text-[#115E63]">₹{product.price}</td>
+                    <td className="py-4 px-4">
+                      <span className={`font-bold ${product.stock > 0 ? 'text-[#115E63]' : 'text-brand-accent'}`}>
+                        {product.stock}
+                      </span>
+                    </td>
                     <td className="py-4 px-4 text-[#115E63]/80">
                       <span className="bg-brand-primary/5 px-3 py-1 rounded-full text-sm font-bold">
                         {getCategoryName(product.category_id)}
