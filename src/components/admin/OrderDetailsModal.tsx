@@ -16,8 +16,8 @@ export default function OrderDetailsModal({ isOpen, onClose, order, orderItems, 
   if (!isOpen || !order) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-brand-primary/50 overflow-y-auto backdrop-blur-sm">
-      <div className="bg-brand-bg w-full max-w-3xl rounded-[16px] shadow-xl overflow-hidden flex flex-col max-h-[90vh]">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-brand-primary/50 backdrop-blur-sm">
+      <div className="bg-brand-bg w-full max-w-3xl rounded-[16px] shadow-xl overflow-hidden flex flex-col max-h-[95vh]">
         
         {/* Header */}
         <div className="flex justify-between items-center p-6 border-b border-brand-primary/10">
@@ -111,20 +111,20 @@ export default function OrderDetailsModal({ isOpen, onClose, order, orderItems, 
               <table className="w-full text-left text-sm">
                 <thead className="bg-brand-primary/5">
                   <tr>
-                    <th className="py-3 px-4 font-bold">Product</th>
-                    <th className="py-3 px-4 font-bold">Variant</th>
-                    <th className="py-3 px-4 font-bold text-center">Qty</th>
-                    <th className="py-3 px-4 font-bold text-right">Price</th>
+                    <th className="py-3 px-4 text-left font-body text-sm text-[#115E63]/70">Item</th>
+                    <th className="py-3 px-4 text-left font-body text-sm text-[#115E63]/70">Qty</th>
+                    <th className="py-3 px-4 text-left font-body text-sm text-[#115E63]/70">Price</th>
                     <th className="py-3 px-4 font-bold text-right">Total</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-brand-primary/10">
                   {orderItems.map((item) => (
                     <tr key={item.id}>
-                      <td className="py-3 px-4">{item.product_name}</td>
-                      <td className="py-3 px-4">{item.variant || '-'}</td>
-                      <td className="py-3 px-4 text-center">{item.quantity}</td>
-                      <td className="py-3 px-4 text-right">₹{item.price}</td>
+                      <td className="py-3 px-4">
+                        <div className="font-bold text-[#115E63]">{item.product_name || `Product #${item.product_id?.substring(0, 8)}`}</div>
+                      </td>
+                      <td className="py-3 px-4 text-[#115E63]">{item.quantity}</td>
+                      <td className="py-3 px-4 text-[#115E63]">₹{item.price}</td>
                       <td className="py-3 px-4 text-right font-bold">₹{item.price * item.quantity}</td>
                     </tr>
                   ))}

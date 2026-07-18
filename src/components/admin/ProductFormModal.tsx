@@ -19,7 +19,6 @@ export default function ProductFormModal({ isOpen, onClose, product, categories,
   const [description, setDescription] = useState('');
   const [price, setPrice] = useState('');
   const [stock, setStock] = useState('0');
-  const [variants, setVariants] = useState('');
   const [categoryId, setCategoryId] = useState('');
   const [visible, setVisible] = useState(true);
   const [featured, setFeatured] = useState(false);
@@ -41,7 +40,6 @@ export default function ProductFormModal({ isOpen, onClose, product, categories,
       setDescription(product.description || '');
       setPrice(product.price.toString());
       setStock(product.stock.toString());
-      setVariants(product.variants || '');
       setCategoryId(product.category_id || '');
       setVisible(product.visible || false);
       setFeatured(product.featured || false);
@@ -53,7 +51,6 @@ export default function ProductFormModal({ isOpen, onClose, product, categories,
       setDescription('');
       setPrice('');
       setStock('0');
-      setVariants('');
       setCategoryId(categories.length > 0 ? categories[0].id : '');
       setVisible(true);
       setFeatured(false);
@@ -113,7 +110,6 @@ export default function ProductFormModal({ isOpen, onClose, product, categories,
         description,
         price: parseFloat(price),
         stock: parseInt(stock) || 0,
-        variants: variants.trim() || null,
         category_id: categoryId,
         image_url: finalImageUrl,
         visible,
@@ -272,19 +268,6 @@ export default function ProductFormModal({ isOpen, onClose, product, categories,
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 className="w-full bg-brand-bg border border-brand-primary/20 rounded-[10px] px-4 py-3 text-[#115E63] focus:outline-none focus:ring-2 focus:ring-brand-accent transition-all resize-none"
-              />
-            </div>
-
-            {/* Variants */}
-            <div className="space-y-2">
-              <label className="block text-[#115E63] text-sm font-bold">Variants (Optional)</label>
-              <p className="text-xs text-[#115E63]/70">Enter options separated by commas (e.g., Gold, Silver, Rose Gold)</p>
-              <input 
-                type="text" 
-                value={variants}
-                onChange={(e) => setVariants(e.target.value)}
-                placeholder="Gold, Silver"
-                className="w-full bg-brand-bg border border-brand-primary/20 rounded-[10px] px-4 py-3 text-[#115E63] focus:outline-none focus:ring-2 focus:ring-brand-accent transition-all"
               />
             </div>
 

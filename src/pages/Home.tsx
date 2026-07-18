@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Search, Plus, Minus, X } from 'lucide-react';
+import { Search, Plus, Minus, X, Info } from 'lucide-react';
 import { useSearchParams } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
 import MainLayout from '../components/layout/MainLayout';
@@ -35,7 +35,12 @@ export default function Home() {
   const [error, setError] = useState<string | null>(null);
   
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
-  const [selectedVariants, setSelectedVariants] = useState<Record<string, string>>({});
+  const [flippedCards, setFlippedCards] = useState<Record<string, boolean>>({});
+
+  const toggleFlip = (productId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setFlippedCards(prev => ({ ...prev, [productId]: !prev[productId] }));
+  };
 
   const { addToCart, cart, updateQuantity, removeFromCart } = useCart();
 
@@ -96,13 +101,9 @@ export default function Home() {
     return () => clearTimeout(timeoutId);
   }, [selectedCategory, searchQuery, sortBy]);
 
-  const handleVariantChange = (productId: string, variant: string) => {
-    setSelectedVariants(prev => ({ ...prev, [productId]: variant }));
-  };
-
-  const handleAddToCart = (product: Product, variant: string | null = null) => {
-    addToCart(product, variant, '');
-    toast.success(`Added ${product.name}${variant ? ` (${variant})` : ''} to cart!`);
+  const handleAddToCart = (product: Product) => {
+    addToCart(product);
+    toast.success(`Added ${product.name} to cart!`);
   };
 
   const categoryName = selectedCategory 
@@ -172,21 +173,27 @@ export default function Home() {
         {!isLoading && !error && products.length > 0 && (
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
             {products.map((product) => {
-              const variants = product.variants ? product.variants.split(',').map(v => v.trim()).filter(Boolean) : [];
-              const hasVariants = variants.length > 0;
-              const currentVariant = hasVariants ? (selectedVariants[product.id] || variants[0]) : null;
+              const cartItem = cart.find(item => item.id === product.id);
               
-              const cartItem = cart.find(item => 
-                item.id === product.id && 
-                (!hasVariants || item.variant === currentVariant)
-              );
+              const isFlipped = !!flippedCards[product.id];
               
               return (
-              <div key={product.id} className="bg-brand-peach rounded-[16px] p-4 shadow-sm hover:shadow-md transition-shadow flex flex-col relative group">
-                <div 
-                  className={`aspect-square bg-brand-bg rounded-xl mb-4 overflow-hidden flex items-center justify-center relative ${product.image_url ? 'cursor-pointer hover:opacity-90 transition-opacity' : ''}`}
-                  onClick={() => product.image_url && setSelectedImage(product.image_url)}
-                >
+              <div key={product.id} className="relative group [perspective:1000px]">
+                <div className={`w-full transition-transform duration-500 [transform-style:preserve-3d] ${isFlipped ? '[transform:rotateY(180deg)]' : ''}`}>
+                  
+                  {/* Front of Card */}
+                  <div className="w-full bg-brand-peach rounded-[16px] p-4 shadow-sm hover:shadow-md transition-shadow flex flex-col relative [backface-visibility:hidden]">
+                    <div 
+                      className={`aspect-square bg-brand-bg rounded-xl mb-4 overflow-hidden flex items-center justify-center relative ${product.image_url ? 'cursor-pointer hover:opacity-90 transition-opacity' : ''}`}
+                      onClick={() => product.image_url && setSelectedImage(product.image_url)}
+                    >
+                      <button 
+                        onClick={(e) => toggleFlip(product.id, e)}
+                        className="absolute top-2 left-2 z-30 bg-white/80 backdrop-blur-sm text-[#115E63] p-1.5 rounded-full shadow-md hover:bg-brand-primary transition-colors"
+                        title="View Description"
+                      >
+                        <Info size={18} />
+                      </button>
                   {product.featured && (
                     <div className="absolute top-2 right-2 z-10 bg-brand-accent text-[#115E63] text-[10px] uppercase tracking-widest font-bold px-3 py-1 rounded-full shadow-md">
                       Featured
@@ -209,21 +216,13 @@ export default function Home() {
                     <span className="text-[#115E63]/30 text-sm">No Image</span>
                   )}
                 </div>
-                <h3 className="font-body font-bold text-lg md:text-xl text-[#115E63] mb-1 line-clamp-2">{product.name}</h3>
+                <div className="min-h-[3.5rem]">
+                  <h3 className="font-body font-bold text-lg md:text-xl text-[#115E63] mb-1 line-clamp-2">{product.name}</h3>
+                </div>
                 
-                {hasVariants && (
-                  <select 
-                    value={currentVariant || ''}
-                    onChange={(e) => handleVariantChange(product.id, e.target.value)}
-                    className="w-full mt-2 bg-brand-bg border border-brand-primary/20 rounded-[10px] px-3 py-2 text-sm text-[#115E63] focus:outline-none focus:ring-2 focus:ring-brand-accent transition-all cursor-pointer"
-                  >
-                    {variants.map(v => (
-                      <option key={v} value={v}>{v}</option>
-                    ))}
-                  </select>
-                )}
+
                 
-                <div className="mt-auto pt-4">
+                <div className="mt-4 pt-4 border-t border-brand-primary/10">
                   <div className="flex flex-col xl:flex-row justify-between xl:items-center gap-3">
                     <span className="font-bold text-[#115E63] text-lg">₹{product.price}</span>
                     {cartItem ? (
@@ -265,7 +264,7 @@ export default function Home() {
                       </button>
                     ) : (
                       <button 
-                        onClick={() => handleAddToCart(product, currentVariant)}
+                        onClick={() => handleAddToCart(product)}
                         className="bg-[#115E63] text-brand-primary px-3 py-2 rounded-[10px] text-sm font-semibold hover:bg-[#115E63]/90 transition-colors flex-1 xl:flex-none flex-shrink-0"
                       >
                         Add to Cart
@@ -274,6 +273,27 @@ export default function Home() {
                   </div>
                 </div>
               </div>
+
+              {/* Back of Card (Description) */}
+              <div className="absolute inset-0 w-full h-full bg-brand-peach rounded-[16px] p-6 shadow-md flex flex-col [backface-visibility:hidden] [transform:rotateY(180deg)] border-2 border-brand-primary/10">
+                <div className="flex justify-between items-center mb-4 border-b border-brand-primary/10 pb-3">
+                  <h3 className="font-heading text-xl text-[#115E63]">Description</h3>
+                  <button 
+                    onClick={(e) => toggleFlip(product.id, e)}
+                    className="text-[#115E63]/60 hover:text-[#115E63] bg-white rounded-full p-1 transition-colors"
+                  >
+                    <X size={20} />
+                  </button>
+                </div>
+                <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar">
+                  <p className="text-[#115E63]/80 text-sm whitespace-pre-wrap leading-relaxed">
+                    {product.description || 'No description available for this beautiful piece.'}
+                  </p>
+                </div>
+              </div>
+
+            </div>
+          </div>
             )})}
           </div>
         )}

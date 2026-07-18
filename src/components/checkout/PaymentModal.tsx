@@ -158,7 +158,6 @@ export default function PaymentModal({ isOpen, onClose, grandTotal, upiId, payee
         order_id: order.id,
         product_id: item.id,
         product_name: item.name,
-        variant: item.variant || null,
         quantity: item.quantity,
         price: item.price
       }));
@@ -181,8 +180,8 @@ export default function PaymentModal({ isOpen, onClose, grandTotal, upiId, payee
   };
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-brand-primary/50 overflow-y-auto backdrop-blur-sm">
-      <div className="bg-brand-bg w-full max-w-lg rounded-[24px] shadow-xl overflow-hidden flex flex-col my-8 animate-in fade-in zoom-in-95 duration-200">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-brand-primary/50 backdrop-blur-sm">
+      <div className="bg-brand-bg w-full max-w-lg max-h-[95vh] rounded-[24px] shadow-xl overflow-hidden flex flex-col animate-in fade-in zoom-in-95 duration-200">
         
         {/* Header */}
         <div className="flex justify-between items-center p-6 border-b border-brand-primary/10 bg-brand-peach/30">
@@ -279,11 +278,18 @@ export default function PaymentModal({ isOpen, onClose, grandTotal, upiId, payee
         </div>
 
         {/* Footer */}
-        <div className="p-4 md:p-6 border-t border-brand-primary/10 bg-brand-peach/30">
+        <div className="p-4 md:p-6 border-t border-brand-primary/10 bg-brand-peach/30 flex gap-4">
+          <button 
+            onClick={onClose}
+            disabled={isSubmitting}
+            className="flex-1 py-4 rounded-[12px] font-bold text-lg transition-colors bg-white text-[#115E63] border border-brand-primary/20 hover:bg-brand-primary/5 disabled:opacity-50"
+          >
+            Cancel
+          </button>
           <button 
             onClick={handleCompleteOrder}
             disabled={isSubmitting || (!utr && !screenshot)}
-            className={`w-full py-4 rounded-[12px] font-bold text-lg transition-colors flex justify-center items-center gap-2
+            className={`flex-[2] py-4 rounded-[12px] font-bold text-lg transition-colors flex justify-center items-center gap-2
               ${(!utr && !screenshot) || isSubmitting
                 ? 'bg-brand-primary/50 text-[#115E63]/50 cursor-not-allowed' 
                 : 'bg-brand-primary text-[#115E63] hover:bg-brand-primary/90'

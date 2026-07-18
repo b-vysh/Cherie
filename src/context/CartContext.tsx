@@ -6,13 +6,12 @@ type Product = Database['public']['Tables']['products']['Row'];
 export interface CartItem extends Product {
   cartItemId: string;
   quantity: number;
-  variant?: string | null;
   customMessage?: string;
 }
 
 interface CartContextType {
   cart: CartItem[];
-  addToCart: (product: Product, variant?: string | null, customMessage?: string) => void;
+  addToCart: (product: Product, customMessage?: string) => void;
   removeFromCart: (cartItemId: string) => void;
   updateQuantity: (cartItemId: string, quantity: number) => void;
   updateCustomMessage: (cartItemId: string, customMessage: string) => void;
@@ -37,11 +36,10 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     localStorage.setItem('cherie_cart', JSON.stringify(cart));
   }, [cart]);
 
-  const addToCart = (product: Product, variant: string | null = null, customMessage: string = '') => {
+  const addToCart = (product: Product, customMessage: string = '') => {
     setCart(prev => {
       const existing = prev.find(item => 
         item.id === product.id && 
-        item.variant === variant && 
         item.customMessage === customMessage
       );
       
@@ -53,8 +51,8 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       }
       if (product.stock <= 0) return prev;
       
-      const cartItemId = `${product.id}-${Date.now()}`;
-      return [...prev, { ...product, cartItemId, quantity: 1, variant, customMessage }];
+      const cartItemId = crypto.randomUUID();
+      return [...prev, { ...product, cartItemId, quantity: 1, customMessage }];
     });
   };
 

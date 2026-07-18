@@ -103,9 +103,7 @@ export default function Cart() {
                   
                   <div className="flex-1 min-w-0">
                     <h3 className="font-body font-bold text-xl text-[#115E63] truncate">{item.name}</h3>
-                    {item.variant && (
-                      <p className="text-sm text-[#115E63]/70 font-bold mb-1">Variant: {item.variant}</p>
-                    )}
+
                     <p className="text-[#115E63] font-bold mt-1">₹{item.price}</p>
                     
                     <div className="mt-3">
