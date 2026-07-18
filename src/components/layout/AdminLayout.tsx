@@ -1,4 +1,4 @@
-import { LogOut, LayoutDashboard, Package, Settings } from 'lucide-react';
+import { LogOut, LayoutDashboard, Package, Settings, Tags, ClipboardList } from 'lucide-react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { supabase } from '../../services/supabase';
 
@@ -17,7 +17,9 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
 
   const navItems = [
     { name: 'Dashboard', path: '/admin', icon: LayoutDashboard },
+    { name: 'Orders', path: '/admin/orders', icon: ClipboardList },
     { name: 'Products', path: '/admin/products', icon: Package },
+    { name: 'Categories', path: '/admin/categories', icon: Tags },
     { name: 'Settings', path: '/admin/settings', icon: Settings },
   ];
 

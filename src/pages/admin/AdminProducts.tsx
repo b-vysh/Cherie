@@ -5,6 +5,7 @@ import AdminLayout from '../../components/layout/AdminLayout';
 import { supabase } from '../../services/supabase';
 import type { Database } from '../../types/database.types';
 import ProductFormModal from '../../components/admin/ProductFormModal';
+import ConfirmModal from '../../components/admin/ConfirmModal';
 
 type Product = Database['public']['Tables']['products']['Row'];
 type Category = Database['public']['Tables']['categories']['Row'];
@@ -18,6 +19,9 @@ export default function AdminProducts() {
   // Modal state
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const [productToDelete, setProductToDelete] = useState<{id: string, name: string} | null>(null);
 
   const fetchProductsAndCategories = async () => {
     setIsLoading(true);
@@ -45,12 +49,18 @@ export default function AdminProducts() {
     fetchProductsAndCategories();
   }, []);
 
-  const handleDelete = async (id: string, name: string) => {
-    if (window.confirm(`Are you sure you want to delete "${name}"? This cannot be undone.`)) {
-      await supabase.from('products').delete().eq('id', id);
-      fetchProductsAndCategories(); // Refresh list
-      toast.success(`Deleted ${name}`);
-    }
+  const confirmDelete = (id: string, name: string) => {
+    setProductToDelete({ id, name });
+    setDeleteConfirmOpen(true);
+  };
+
+  const handleDelete = async () => {
+    if (!productToDelete) return;
+    const { id, name } = productToDelete;
+    
+    await supabase.from('products').delete().eq('id', id);
+    fetchProductsAndCategories(); // Refresh list
+    toast.success(`Deleted ${name}`);
   };
 
   const openAddModal = () => {
@@ -201,7 +211,7 @@ export default function AdminProducts() {
                         <Edit2 size={18} />
                       </button>
                       <button 
-                        onClick={() => handleDelete(product.id, product.name)}
+                        onClick={() => confirmDelete(product.id, product.name)}
                         className="p-2 text-[#115E63] hover:bg-[#115E63]/10 rounded-lg transition-colors inline-flex"
                         title="Delete"
                       >
@@ -226,6 +236,16 @@ export default function AdminProducts() {
           setIsModalOpen(false);
           fetchProductsAndCategories();
         }}
+      />
+
+      {/* Delete Confirmation Modal */}
+      <ConfirmModal
+        isOpen={deleteConfirmOpen}
+        onClose={() => setDeleteConfirmOpen(false)}
+        onConfirm={handleDelete}
+        title="Delete Product"
+        message={`Are you sure you want to delete "${productToDelete?.name}"? This cannot be undone.`}
+        confirmText="Delete"
       />
 
     </AdminLayout>

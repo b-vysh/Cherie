@@ -26,6 +26,76 @@ export interface Database {
           created_at?: string
         }
       }
+      orders: {
+        Row: {
+          id: string
+          customer_name: string
+          customer_phone: string
+          customer_insta: string | null
+          customer_address: string
+          order_notes: string | null
+          total_amount: number
+          payment_utr: string | null
+          payment_proof_url: string | null
+          status: string
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          customer_name: string
+          customer_phone: string
+          customer_insta?: string | null
+          customer_address: string
+          order_notes?: string | null
+          total_amount: number
+          payment_utr?: string | null
+          payment_proof_url?: string | null
+          status?: string
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          customer_name?: string
+          customer_phone?: string
+          customer_insta?: string | null
+          customer_address?: string
+          order_notes?: string | null
+          total_amount?: number
+          payment_utr?: string | null
+          payment_proof_url?: string | null
+          status?: string
+          created_at?: string
+        }
+      }
+      order_items: {
+        Row: {
+          id: string
+          order_id: string
+          product_id: string | null
+          product_name: string
+          variant: string | null
+          quantity: number
+          price: number
+        }
+        Insert: {
+          id?: string
+          order_id: string
+          product_id?: string | null
+          product_name: string
+          variant?: string | null
+          quantity: number
+          price: number
+        }
+        Update: {
+          id?: string
+          order_id?: string
+          product_id?: string | null
+          product_name?: string
+          variant?: string | null
+          quantity?: number
+          price?: number
+        }
+      }
       products: {
         Row: {
           id: string
@@ -74,6 +144,8 @@ export interface Database {
           instagram_url: string | null
           shipping_text: string | null
           free_shipping_threshold: number | null
+          upi_id: string | null
+          payee_name: string | null
           created_at: string
         }
         Insert: {
@@ -82,6 +154,8 @@ export interface Database {
           instagram_url?: string | null
           shipping_text?: string | null
           free_shipping_threshold?: number | null
+          upi_id?: string | null
+          payee_name?: string | null
           created_at?: string
         }
         Update: {
@@ -90,6 +164,8 @@ export interface Database {
           instagram_url?: string | null
           shipping_text?: string | null
           free_shipping_threshold?: number | null
+          upi_id?: string | null
+          payee_name?: string | null
           created_at?: string
         }
       }

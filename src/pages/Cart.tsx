@@ -5,12 +5,14 @@ import { toast } from 'react-hot-toast';
 import { useCart } from '../context/CartContext';
 import AnnouncementBar from '../components/layout/AnnouncementBar';
 import Header from '../components/layout/Header';
+import PaymentModal from '../components/checkout/PaymentModal';
 import { supabase } from '../services/supabase';
 
 export default function Cart() {
-  const { cart, removeFromCart, updateQuantity, cartTotal, clearCart } = useCart();
-  const [whatsappNumber, setWhatsappNumber] = useState<string | null>(null);
-  const [isProcessing, setIsProcessing] = useState(false);
+  const { cart, removeFromCart, updateQuantity, cartTotal } = useCart();
+  const [upiId, setUpiId] = useState<string | null>(null);
+  const [payeeName, setPayeeName] = useState<string | null>(null);
+  const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
   const [customerDetails, setCustomerDetails] = useState({
     name: '',
     phone: '',
@@ -26,22 +28,23 @@ export default function Cart() {
     async function fetchSettings() {
       const { data } = await supabase
         .from('settings')
-        .select('whatsapp_number, shipping_text, free_shipping_threshold')
+        .select('shipping_text, free_shipping_threshold, upi_id, payee_name')
         .limit(1)
         .single();
       
       if (data) {
-        if (data.whatsapp_number) setWhatsappNumber(data.whatsapp_number);
         setShippingText(data.shipping_text || 'Shipping ₹80');
         if (data.free_shipping_threshold) setShippingThreshold(Number(data.free_shipping_threshold));
+        if (data.upi_id) setUpiId(data.upi_id);
+        if (data.payee_name) setPayeeName(data.payee_name);
       }
     }
     fetchSettings();
   }, []);
 
   const handleCheckout = () => {
-    if (!whatsappNumber) {
-      toast.error("Checkout is currently unavailable as no WhatsApp number is configured.");
+    if (!upiId || !payeeName) {
+      toast.error("Checkout is currently unavailable as payment details are not configured.");
       return;
     }
 
@@ -56,44 +59,7 @@ export default function Cart() {
       return;
     }
 
-    setIsProcessing(true);
-
-    let message = "Hello CHERIE,\n\nI would like to place an order:\n\n";
-    
-    message += `*Customer Details*\n`;
-    message += `Name: ${customerDetails.name}\n`;
-    message += `Phone: ${customerDetails.phone}\n`;
-    if (customerDetails.instaId) message += `Insta ID: ${customerDetails.instaId}\n`;
-    message += `Address: ${customerDetails.address}\n\n`;
-    
-    message += `*Order Items*\n`;
-    cart.forEach(item => {
-      let itemLine = `- ${item.name}`;
-      if (item.variant) {
-        itemLine += ` [${item.variant}]`;
-      }
-      itemLine += ` x${item.quantity} (₹${item.price * item.quantity})\n`;
-      message += itemLine;
-    });
-    
-    if (customerDetails.orderNotes.trim()) {
-      message += `\n*Order Notes*\n${customerDetails.orderNotes.trim()}\n`;
-    }
-    
-    message += `\n*Subtotal: ₹${cartTotal}*\n`;
-    message += `*Shipping: ${actualShippingCost === 0 ? 'Free' : `₹${actualShippingCost}`}*\n`;
-    message += `*Grand Total: ₹${grandTotal}*\n\nPlease share payment details.`;
-    
-    const encodedMessage = encodeURIComponent(message);
-    const cleanNumber = whatsappNumber.replace(/\D/g, ''); // Remove non-numeric characters
-    
-    // Use window.location.href instead of window.open to prevent mobile popup blockers
-    window.location.href = `https://wa.me/${cleanNumber}?text=${encodedMessage}`;
-    
-    setTimeout(() => {
-      setIsProcessing(false);
-      clearCart();
-    }, 500); // Reset processing state and clear cart after short delay to ensure redirect happens first
+    setIsPaymentModalOpen(true);
   };
 
   const shippingMatch = shippingText.match(/\d+/);
@@ -267,20 +233,33 @@ export default function Cart() {
               
               <button 
                 onClick={handleCheckout}
-                disabled={isProcessing || !whatsappNumber}
+                disabled={!upiId || !payeeName}
                 className={`w-full py-3 rounded-[10px] font-semibold transition-colors
-                  ${!whatsappNumber 
+                  ${(!upiId || !payeeName) 
                     ? 'bg-[#115E63]/50 text-brand-primary cursor-not-allowed' 
                     : 'bg-[#115E63] text-brand-primary hover:bg-[#115E63]/90'
                   }`}
               >
-                {!whatsappNumber ? 'Setup Required' : (isProcessing ? 'Processing...' : 'Place Order')}
+                {!upiId || !payeeName ? 'Setup Required' : 'Proceed to Payment'}
               </button>
             </div>
           </div>
           </div>
         )}
       </main>
+
+      {/* Payment Modal */}
+      {upiId && payeeName && (
+        <PaymentModal 
+          isOpen={isPaymentModalOpen}
+          onClose={() => setIsPaymentModalOpen(false)}
+          grandTotal={grandTotal}
+          upiId={upiId}
+          payeeName={payeeName}
+          customerDetails={customerDetails}
+          cartItems={cart}
+        />
+      )}
     </div>
   );
 }

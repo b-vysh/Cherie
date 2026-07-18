@@ -10,6 +10,8 @@ interface SettingsData {
   instagram_url: string;
   shipping_text: string;
   free_shipping_threshold: string | number;
+  upi_id: string;
+  payee_name: string;
 }
 
 export default function AdminSettings() {
@@ -17,7 +19,9 @@ export default function AdminSettings() {
     whatsapp_number: '',
     instagram_url: '',
     shipping_text: '',
-    free_shipping_threshold: ''
+    free_shipping_threshold: '',
+    upi_id: '',
+    payee_name: ''
   });
   
   const [isLoading, setIsLoading] = useState(true);
@@ -37,7 +41,9 @@ export default function AdminSettings() {
           whatsapp_number: data.whatsapp_number || '',
           instagram_url: data.instagram_url || '',
           shipping_text: data.shipping_text || '',
-          free_shipping_threshold: data.free_shipping_threshold || ''
+          free_shipping_threshold: data.free_shipping_threshold || '',
+          upi_id: data.upi_id || '',
+          payee_name: data.payee_name || ''
         });
       }
       setIsLoading(false);
@@ -60,7 +66,9 @@ export default function AdminSettings() {
         whatsapp_number: settings.whatsapp_number,
         instagram_url: settings.instagram_url,
         shipping_text: settings.shipping_text,
-        free_shipping_threshold: settings.free_shipping_threshold === '' ? null : Number(settings.free_shipping_threshold)
+        free_shipping_threshold: settings.free_shipping_threshold === '' ? null : Number(settings.free_shipping_threshold),
+        upi_id: settings.upi_id,
+        payee_name: settings.payee_name
       };
 
       if (settings.id) {
@@ -101,7 +109,7 @@ export default function AdminSettings() {
             
             <div className="space-y-2">
               <label className="block text-[#115E63] font-bold">WhatsApp Number</label>
-              <p className="text-sm text-[#115E63]/60 mb-2">Used for checkout redirects (include country code, e.g. +91XXXXXXXXXX)</p>
+              <p className="text-sm text-[#115E63]/60 mb-2">Used for support/inquiries (include country code, e.g. +91XXXXXXXXXX)</p>
               <input 
                 type="text" 
                 name="whatsapp_number"
@@ -151,6 +159,37 @@ export default function AdminSettings() {
                   min="0"
                   className="w-full px-4 py-3 bg-brand-bg border border-brand-primary/20 rounded-[10px] text-[#115E63] focus:outline-none focus:border-brand-primary transition-colors"
                 />
+              </div>
+            </div>
+
+            <div className="pt-6 border-t border-brand-primary/10">
+              <h2 className="text-2xl font-heading text-[#115E63] mb-4">Payment Settings (UPI)</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <label className="block text-[#115E63] font-bold">UPI ID</label>
+                  <p className="text-sm text-[#115E63]/60 mb-2">e.g. yourname@okicici</p>
+                  <input 
+                    type="text" 
+                    name="upi_id"
+                    value={settings.upi_id}
+                    onChange={handleChange}
+                    placeholder="yourname@okicici"
+                    className="w-full px-4 py-3 bg-brand-bg border border-brand-primary/20 rounded-[10px] text-[#115E63] focus:outline-none focus:border-brand-primary transition-colors"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <label className="block text-[#115E63] font-bold">Payee Name</label>
+                  <p className="text-sm text-[#115E63]/60 mb-2">The name registered with this UPI ID</p>
+                  <input 
+                    type="text" 
+                    name="payee_name"
+                    value={settings.payee_name}
+                    onChange={handleChange}
+                    placeholder="CHERIE Store"
+                    className="w-full px-4 py-3 bg-brand-bg border border-brand-primary/20 rounded-[10px] text-[#115E63] focus:outline-none focus:border-brand-primary transition-colors"
+                  />
+                </div>
               </div>
             </div>
 

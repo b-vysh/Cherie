@@ -9,7 +9,10 @@ import { CartProvider } from './context/CartContext';
 import { AuthProvider } from './context/AuthContext';
 
 import AdminProducts from './pages/admin/AdminProducts';
+import AdminCategories from './pages/admin/AdminCategories';
+import AdminOrders from './pages/admin/AdminOrders';
 import AdminSettings from './pages/admin/AdminSettings';
+import OrderSuccess from './pages/OrderSuccess';
 
 function App() {
   return (
@@ -38,6 +41,8 @@ function App() {
             {/* Public Routes */}
             <Route path="/" element={<Home />} />
             <Route path="/cart" element={<Cart />} />
+            <Route path="/success" element={<OrderSuccess />} />
+            <Route path="/login" element={<Login />} />
             
             {/* Admin Login */}
             <Route path="/admin/login" element={<Login />} />
@@ -45,7 +50,9 @@ function App() {
             {/* Protected Admin Routes */}
             <Route path="/admin" element={<ProtectedRoute />}>
               <Route index element={<Dashboard />} />
+              <Route path="orders" element={<AdminOrders />} />
               <Route path="products" element={<AdminProducts />} />
+              <Route path="categories" element={<AdminCategories />} />
               <Route path="settings" element={<AdminSettings />} />
             </Route>
           </Routes>
