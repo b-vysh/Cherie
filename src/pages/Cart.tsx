@@ -8,7 +8,7 @@ import Header from '../components/layout/Header';
 import { supabase } from '../services/supabase';
 
 export default function Cart() {
-  const { cart, removeFromCart, updateQuantity, cartTotal, clearCart, updateCustomMessage } = useCart();
+  const { cart, removeFromCart, updateQuantity, cartTotal, clearCart } = useCart();
   const [whatsappNumber, setWhatsappNumber] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [customerDetails, setCustomerDetails] = useState({
