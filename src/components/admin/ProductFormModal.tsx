@@ -143,7 +143,7 @@ export default function ProductFormModal({ isOpen, onClose, product, categories,
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-brand-primary/50 overflow-y-auto">
+    <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-brand-primary/50 overflow-y-auto">
       <div className="bg-brand-bg w-full max-w-2xl rounded-[16px] shadow-xl overflow-hidden flex flex-col max-h-[90vh]">
         
         {/* Header */}

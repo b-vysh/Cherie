@@ -66,7 +66,7 @@ export default function CategoryFormModal({ isOpen, onClose, category, onSuccess
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-brand-primary/50 overflow-y-auto">
+    <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-brand-primary/50 overflow-y-auto">
       <div className="bg-brand-bg w-full max-w-md rounded-[16px] shadow-xl overflow-hidden flex flex-col">
         
         {/* Header */}

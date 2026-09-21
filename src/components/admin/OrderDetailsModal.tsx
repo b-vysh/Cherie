@@ -16,7 +16,7 @@ export default function OrderDetailsModal({ isOpen, onClose, order, orderItems, 
   if (!isOpen || !order) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-brand-primary/50 backdrop-blur-sm">
+    <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-brand-primary/50 backdrop-blur-sm">
       <div className="bg-brand-bg w-full max-w-3xl rounded-[16px] shadow-xl overflow-hidden flex flex-col max-h-[95vh]">
         
         {/* Header */}
