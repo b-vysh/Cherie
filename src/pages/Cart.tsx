@@ -95,7 +95,7 @@ export default function Cart() {
                 <div key={item.cartItemId} className="bg-brand-peach p-4 rounded-[16px] flex gap-4 items-center shadow-sm">
                   <div className="w-24 h-24 bg-brand-bg rounded-xl overflow-hidden flex-shrink-0">
                     {item.image_url ? (
-                      <img src={item.image_url} alt={item.name} className="w-full h-full object-cover" />
+                      <img src={item.image_url} alt={item.name} className="w-full h-full object-cover" loading="lazy" />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center text-[#115E63]/30 text-xs">No Image</div>
                     )}

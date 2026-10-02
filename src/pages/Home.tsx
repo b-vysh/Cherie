@@ -32,7 +32,11 @@ export default function Home() {
   const [sortBy, setSortBy] = useState<SortOption>('newest');
   
   const [isLoading, setIsLoading] = useState(true);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const ITEMS_PER_PAGE = 12;
   
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [flippedCards, setFlippedCards] = useState<Record<string, boolean>>({});
@@ -57,49 +61,71 @@ export default function Home() {
   }, []);
 
   // Fetch Products
-  useEffect(() => {
-    async function fetchProducts() {
-      setIsLoading(true);
-      try {
-        let query = supabase
-          .from('products')
-          .select('*')
-          .eq('visible', true);
+  const fetchProducts = async (currentPage: number, isNewSearch: boolean) => {
+    if (isNewSearch) setIsLoading(true);
+    else setIsLoadingMore(true);
+    
+    try {
+      let query = supabase
+        .from('products')
+        .select('*', { count: 'exact' })
+        .eq('visible', true);
 
-        if (selectedCategory) {
-          query = query.eq('category_id', selectedCategory);
-        }
-
-        if (searchQuery.trim()) {
-          query = query.ilike('name', `%${searchQuery.trim()}%`);
-        }
-
-        if (sortBy === 'newest') {
-          // Keep featured on top for default view, then newest
-          query = query.order('featured', { ascending: false }).order('created_at', { ascending: false });
-        } else if (sortBy === 'price_asc') {
-          query = query.order('price', { ascending: true });
-        } else if (sortBy === 'price_desc') {
-          query = query.order('price', { ascending: false });
-        }
-
-        const { data, error: fetchError } = await query;
-
-        if (fetchError) throw fetchError;
-        setProducts(data || []);
-      } catch (err: any) {
-        setError(err.message || 'Failed to fetch products');
-      } finally {
-        setIsLoading(false);
+      if (selectedCategory) {
+        query = query.eq('category_id', selectedCategory);
       }
-    }
 
+      if (searchQuery.trim()) {
+        query = query.ilike('name', `%${searchQuery.trim()}%`);
+      }
+
+      if (sortBy === 'newest') {
+        // Keep featured on top for default view, then newest
+        query = query.order('featured', { ascending: false }).order('created_at', { ascending: false });
+      } else if (sortBy === 'price_asc') {
+        query = query.order('price', { ascending: true });
+      } else if (sortBy === 'price_desc') {
+        query = query.order('price', { ascending: false });
+      }
+
+      const from = (currentPage - 1) * ITEMS_PER_PAGE;
+      const to = from + ITEMS_PER_PAGE - 1;
+      query = query.range(from, to);
+
+      const { data, count, error: fetchError } = await query;
+
+      if (fetchError) throw fetchError;
+      
+      if (isNewSearch) {
+        setProducts(data || []);
+      } else {
+        setProducts(prev => [...prev, ...(data || [])]);
+      }
+      
+      setHasMore(count ? from + (data?.length || 0) < count : false);
+    } catch (err: any) {
+      setError(err.message || 'Failed to fetch products');
+    } finally {
+      setIsLoading(false);
+      setIsLoadingMore(false);
+    }
+  };
+
+  useEffect(() => {
+    setPage(1);
+    setHasMore(true);
     const timeoutId = setTimeout(() => {
-      fetchProducts();
+      fetchProducts(1, true);
     }, 300);
     
     return () => clearTimeout(timeoutId);
   }, [selectedCategory, searchQuery, sortBy]);
+
+  const loadMore = () => {
+    const nextPage = page + 1;
+    setPage(nextPage);
+    fetchProducts(nextPage, false);
+  };
 
   const handleAddToCart = (product: Product) => {
     addToCart(product);
@@ -211,6 +237,7 @@ export default function Home() {
                       src={product.image_url} 
                       alt={product.name} 
                       className="w-full h-full object-cover"
+                      loading="lazy"
                     />
                   ) : (
                     <span className="text-[#115E63]/30 text-sm">No Image</span>
@@ -295,6 +322,18 @@ export default function Home() {
             </div>
           </div>
             )})}
+          </div>
+        )}
+
+        {!isLoading && !error && hasMore && products.length > 0 && (
+          <div className="mt-12 text-center">
+            <button
+              onClick={loadMore}
+              disabled={isLoadingMore}
+              className="bg-brand-peach text-[#115E63] border border-brand-primary/20 px-8 py-3 rounded-[10px] font-bold hover:bg-brand-primary/10 transition-colors inline-flex items-center gap-2 disabled:opacity-50"
+            >
+              {isLoadingMore ? 'Loading...' : 'Load More'}
+            </button>
           </div>
         )}
       </div>

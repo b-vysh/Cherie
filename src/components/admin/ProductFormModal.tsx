@@ -6,6 +6,53 @@ import type { Database } from '../../types/database.types';
 type Product = Database['public']['Tables']['products']['Row'];
 type Category = Database['public']['Tables']['categories']['Row'];
 
+const compressImage = async (file: File, maxWidth = 800, maxHeight = 800): Promise<File> => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = (event) => {
+      const img = new Image();
+      img.src = event.target?.result as string;
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        let width = img.width;
+        let height = img.height;
+
+        if (width > height) {
+          if (width > maxWidth) {
+            height *= maxWidth / width;
+            width = maxWidth;
+          }
+        } else {
+          if (height > maxHeight) {
+            width *= maxHeight / height;
+            height = maxHeight;
+          }
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx?.drawImage(img, 0, 0, width, height);
+        
+        canvas.toBlob((blob) => {
+          if (blob) {
+            const newFile = new File([blob], file.name.replace(/\.[^/.]+$/, "") + ".jpg", {
+              type: 'image/jpeg',
+              lastModified: Date.now(),
+            });
+            resolve(newFile);
+          } else {
+            reject(new Error('Canvas to Blob failed'));
+          }
+        }, 'image/jpeg', 0.8); // 80% quality JPEG
+      };
+      img.onerror = (error) => reject(error);
+    };
+    reader.onerror = (error) => reject(error);
+  });
+};
+
 interface ProductFormModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -83,14 +130,17 @@ export default function ProductFormModal({ isOpen, onClose, product, categories,
 
       // Handle image upload if a new file was selected
       if (imageFile) {
+        setUploadProgress('Compressing image...');
+        const compressedFile = await compressImage(imageFile);
+        
         setUploadProgress('Uploading image...');
-        const fileExt = imageFile.name.split('.').pop();
+        const fileExt = compressedFile.name.split('.').pop() || 'jpg';
         const fileName = `${Math.random().toString(36).substring(2, 15)}_${Date.now()}.${fileExt}`;
         const filePath = `${fileName}`;
 
         const { error: uploadError } = await supabase.storage
           .from('product-images')
-          .upload(filePath, imageFile, { upsert: true });
+          .upload(filePath, compressedFile, { upsert: true });
 
         if (uploadError) {
           throw new Error(`Image upload failed: ${uploadError.message}. Make sure 'product-images' bucket exists and is public.`);

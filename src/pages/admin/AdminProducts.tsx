@@ -159,7 +159,7 @@ export default function AdminProducts() {
                       <div className="flex items-center gap-4">
                         <div className="w-16 h-16 bg-brand-bg rounded-lg overflow-hidden flex-shrink-0">
                           {product.image_url ? (
-                            <img src={product.image_url} alt={product.name} className="w-full h-full object-cover" />
+                            <img src={product.image_url} alt={product.name} className="w-full h-full object-cover" loading="lazy" />
                           ) : (
                             <div className="w-full h-full flex items-center justify-center text-[#115E63]/30 text-[10px]">No Image</div>
                           )}
