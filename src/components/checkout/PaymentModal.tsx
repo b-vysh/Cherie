@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react';
-import { X, Upload, CheckCircle, ExternalLink, Copy, Check, QrCode } from 'lucide-react';
+import { X, Upload, CheckCircle, ExternalLink, Copy, Check } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import { supabase } from '../../services/supabase';
 import { useNavigate } from 'react-router-dom';
@@ -30,52 +30,24 @@ export default function PaymentModal({ isOpen, onClose, grandTotal, upiId, payee
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [cooldown, setCooldown] = useState(false);
   const [copied, setCopied] = useState(false);
-  const [showQrOnMobile, setShowQrOnMobile] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   if (!isOpen) return null;
 
-  // Platform detection for Android intent vs iOS/generic deep links
-  const isAndroid = typeof navigator !== 'undefined' && /android/i.test(navigator.userAgent);
-
-  // Generate UPI URI
-  const encodedPayee = encodeURIComponent(payeeName);
-  const baseUpiParams = `pa=${upiId}&pn=${encodedPayee}&am=${grandTotal}&cu=INR`;
-  const upiUri = `upi://pay?${baseUpiParams}`;
-
-  // Direct app URIs
-  const getAppUri = (app: 'gpay' | 'phonepe' | 'paytm' | 'generic') => {
-    if (app === 'phonepe') {
-      return isAndroid
-        ? `intent://pay?${baseUpiParams}#Intent;scheme=upi;package=com.phonepe.app;end`
-        : `phonepe://pay?${baseUpiParams}`;
-    }
-    if (app === 'gpay') {
-      return isAndroid
-        ? `intent://pay?${baseUpiParams}#Intent;scheme=upi;package=com.google.android.apps.nbu.paisa.user;end`
-        : `gpay://upi/pay?${baseUpiParams}`;
-    }
-    if (app === 'paytm') {
-      return isAndroid
-        ? `intent://pay?${baseUpiParams}#Intent;scheme=upi;package=net.one97.paytm;end`
-        : `paytmmp://pay?${baseUpiParams}`;
-    }
-    return upiUri;
-  };
+  // Generate UPI URI & QR Code
+  const upiUri = `upi://pay?pa=${upiId}&pn=${encodeURIComponent(payeeName)}&am=${grandTotal}&cu=INR`;
+  const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(upiUri)}`;
 
   const handleCopyUpi = async () => {
     try {
       await navigator.clipboard.writeText(upiId);
       setCopied(true);
-      toast.success('UPI ID copied! Open your UPI app and paste to pay.');
+      toast.success('UPI ID copied!');
       setTimeout(() => setCopied(false), 2500);
     } catch {
       toast.error('Failed to copy UPI ID');
     }
   };
-  
-  // Use a reliable free QR API
-  const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(upiUri)}`;
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -251,62 +223,21 @@ export default function PaymentModal({ isOpen, onClose, grandTotal, upiId, payee
           </div>
 
           <div className="bg-brand-peach p-5 md:p-6 rounded-[20px] border border-brand-primary/10 flex flex-col items-center">
-            
-            {/* Mobile App Selectors */}
-            <div className="md:hidden w-full mb-4 space-y-3">
-              <p className="text-center text-[#115E63] font-bold text-sm">Select Your UPI App</p>
-              
-              <div className="grid grid-cols-2 gap-2.5">
-                <a 
-                  href={getAppUri('gpay')}
-                  className="flex items-center justify-center gap-2 py-3 px-3 bg-white text-[#115E63] font-bold text-sm rounded-xl border border-brand-primary/20 shadow-xs hover:bg-brand-primary/10 active:scale-95 transition-all text-center"
-                >
-                  <span>Google Pay</span>
-                </a>
-
-                <a 
-                  href={getAppUri('phonepe')}
-                  className="flex items-center justify-center gap-2 py-3 px-3 bg-white text-[#5f259f] font-bold text-sm rounded-xl border border-brand-primary/20 shadow-xs hover:bg-purple-50 active:scale-95 transition-all text-center"
-                >
-                  <span>PhonePe</span>
-                </a>
-
-                <a 
-                  href={getAppUri('paytm')}
-                  className="flex items-center justify-center gap-2 py-3 px-3 bg-white text-[#002e6e] font-bold text-sm rounded-xl border border-brand-primary/20 shadow-xs hover:bg-sky-50 active:scale-95 transition-all text-center"
-                >
-                  <span>Paytm</span>
-                </a>
-
-                <a 
-                  href={getAppUri('generic')}
-                  className="flex items-center justify-center gap-1.5 py-3 px-3 bg-[#115E63] text-brand-primary font-bold text-sm rounded-xl shadow-xs hover:bg-[#115E63]/90 active:scale-95 transition-all text-center"
-                >
-                  <span>Other UPI</span>
-                  <ExternalLink size={14} />
-                </a>
-              </div>
-
-              {/* Toggle QR code for mobile */}
-              <div className="pt-1 text-center">
-                <button
-                  type="button"
-                  onClick={() => setShowQrOnMobile(prev => !prev)}
-                  className="inline-flex items-center gap-1.5 text-xs font-bold text-[#115E63] underline underline-offset-4 hover:opacity-80 transition-opacity cursor-pointer"
-                >
-                  <QrCode size={14} />
-                  {showQrOnMobile ? 'Hide QR Code' : 'Show QR Code (Scan or Screenshot)'}
-                </button>
-              </div>
+            {/* Direct QR Code */}
+            <div className="bg-white p-3 rounded-2xl shadow-sm border border-brand-primary/10 text-center mb-2">
+              <img src={qrUrl} alt="UPI QR Code" className="w-48 h-48 mx-auto" />
             </div>
 
-            {/* QR Code Container */}
-            <div className={`${showQrOnMobile ? 'block' : 'hidden'} md:block bg-white p-3 rounded-2xl mb-4 shadow-sm border border-brand-primary/10 text-center`}>
-              <img src={qrUrl} alt="UPI QR Code" className="w-44 h-44 md:w-48 md:h-48 mx-auto" />
-              <p className="text-[11px] text-[#115E63]/70 mt-2 font-medium">
-                Scan with any UPI app or screenshot to scan from gallery
-              </p>
-            </div>
+            {/* Open QR Link */}
+            <a
+              href={qrUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 text-xs font-bold text-[#115E63] hover:underline mb-3 cursor-pointer"
+            >
+              <span>Open QR</span>
+              <ExternalLink size={13} />
+            </a>
 
             {/* UPI ID with Copy Button */}
             <div className="w-full bg-white/80 p-3 rounded-xl border border-brand-primary/15 flex items-center justify-between gap-3 shadow-xs">
@@ -333,9 +264,8 @@ export default function PaymentModal({ isOpen, onClose, grandTotal, upiId, payee
               </button>
             </div>
 
-            <div className="text-center mt-2.5 space-y-0.5">
+            <div className="text-center mt-2.5">
               <p className="text-xs text-[#115E63]/70">Payee: <span className="font-bold text-[#115E63]">{payeeName}</span></p>
-              <p className="text-[11px] text-[#115E63]/60 italic">If any app doesn't open, copy the UPI ID and pay directly.</p>
             </div>
           </div>
 
