@@ -151,6 +151,21 @@ export default function ProductFormModal({ isOpen, onClose, product, categories,
           .getPublicUrl(filePath);
           
         finalImageUrl = publicUrlData.publicUrl;
+
+        // Clean up the old image from storage to prevent orphan files eating quota
+        if (imageUrl) {
+          try {
+            // Extract the file path from the public URL
+            const oldUrl = new URL(imageUrl);
+            const pathParts = oldUrl.pathname.split('/product-images/');
+            if (pathParts.length === 2) {
+              const oldFilePath = pathParts[1];
+              await supabase.storage.from('product-images').remove([oldFilePath]);
+            }
+          } catch {
+            // Non-fatal: old file cleanup failed, but new image is already saved
+          }
+        }
       }
 
       setUploadProgress('Saving product details...');

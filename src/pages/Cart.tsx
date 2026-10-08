@@ -1,17 +1,16 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Trash2, Plus, Minus, ArrowLeft } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
 import { useCart } from '../context/CartContext';
+import { useSettings } from '../context/SettingsContext';
 import AnnouncementBar from '../components/layout/AnnouncementBar';
 import Header from '../components/layout/Header';
 import PaymentModal from '../components/checkout/PaymentModal';
-import { supabase } from '../services/supabase';
 
 export default function Cart() {
   const { cart, removeFromCart, updateQuantity, cartTotal } = useCart();
-  const [upiId, setUpiId] = useState<string | null>(null);
-  const [payeeName, setPayeeName] = useState<string | null>(null);
+  const { settings } = useSettings();
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
   const [customerDetails, setCustomerDetails] = useState({
     name: '',
@@ -21,26 +20,17 @@ export default function Cart() {
     orderNotes: ''
   });
 
-  const [shippingText, setShippingText] = useState<string>('Shipping ₹80');
-  const [shippingThreshold, setShippingThreshold] = useState<number | null>(null);
+  const upiId = settings?.upi_id ?? null;
+  const payeeName = settings?.payee_name ?? null;
 
-  useEffect(() => {
-    async function fetchSettings() {
-      const { data } = await supabase
-        .from('settings')
-        .select('shipping_text, free_shipping_threshold, upi_id, payee_name')
-        .limit(1)
-        .single();
-      
-      if (data) {
-        setShippingText(data.shipping_text || 'Shipping ₹80');
-        if (data.free_shipping_threshold) setShippingThreshold(Number(data.free_shipping_threshold));
-        if (data.upi_id) setUpiId(data.upi_id);
-        if (data.payee_name) setPayeeName(data.payee_name);
-      }
-    }
-    fetchSettings();
-  }, []);
+  const shippingText = settings?.shipping_text || 'Shipping ₹80';
+  const shippingThreshold = settings?.free_shipping_threshold ?? null;
+
+  const shippingMatch = shippingText.match(/\d+/);
+  const baseShippingCost = shippingMatch ? parseInt(shippingMatch[0]) : 0;
+  const isFreeShipping = shippingThreshold !== null && cartTotal >= shippingThreshold;
+  const actualShippingCost = isFreeShipping ? 0 : baseShippingCost;
+  const grandTotal = cartTotal + actualShippingCost;
 
   const handleCheckout = () => {
     if (!upiId || !payeeName) {
@@ -48,7 +38,7 @@ export default function Cart() {
       return;
     }
 
-    if (!customerDetails.name || !customerDetails.phone || !customerDetails.address) {
+    if (!customerDetails.name.trim() || !customerDetails.phone || !customerDetails.address.trim()) {
       toast.error("Please fill in all required details (Name, Phone, Address).");
       return;
     }
@@ -61,12 +51,6 @@ export default function Cart() {
 
     setIsPaymentModalOpen(true);
   };
-
-  const shippingMatch = shippingText.match(/\d+/);
-  const baseShippingCost = shippingMatch ? parseInt(shippingMatch[0]) : 0;
-  const isFreeShipping = shippingThreshold !== null && cartTotal >= shippingThreshold;
-  const actualShippingCost = isFreeShipping ? 0 : baseShippingCost;
-  const grandTotal = cartTotal + actualShippingCost;
 
   return (
     <div className="min-h-screen bg-brand-bg flex flex-col font-body">

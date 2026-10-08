@@ -3,7 +3,7 @@ import { X, Upload, CheckCircle, ExternalLink } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import { supabase } from '../../services/supabase';
 import { useNavigate } from 'react-router-dom';
-import { useCart } from '../../context/CartContext';
+import { useCart, type CartItem } from '../../context/CartContext';
 
 interface PaymentModalProps {
   isOpen: boolean;
@@ -18,7 +18,7 @@ interface PaymentModalProps {
     address: string;
     orderNotes: string;
   };
-  cartItems: any[];
+  cartItems: CartItem[];
 }
 
 export default function PaymentModal({ isOpen, onClose, grandTotal, upiId, payeeName, customerDetails, cartItems }: PaymentModalProps) {
@@ -28,6 +28,7 @@ export default function PaymentModal({ isOpen, onClose, grandTotal, upiId, payee
   const [utr, setUtr] = useState('');
   const [screenshot, setScreenshot] = useState<File | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [cooldown, setCooldown] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   if (!isOpen) return null;
@@ -95,6 +96,8 @@ export default function PaymentModal({ isOpen, onClose, grandTotal, upiId, payee
   };
 
   const handleCompleteOrder = async () => {
+    if (cooldown || isSubmitting) return;
+
     if (!utr.trim() && !screenshot) {
       toast.error('Please provide a UTR number or upload a screenshot of the payment to verify your order.');
       return;
@@ -113,8 +116,7 @@ export default function PaymentModal({ isOpen, onClose, grandTotal, upiId, payee
       if (screenshot) {
         toast.loading('Uploading payment proof...', { id: 'checkout' });
         const compressedBlob = await compressImage(screenshot);
-        const fileExt = 'jpg';
-        const fileName = `proof_${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`;
+        const fileName = `proof_${Date.now()}_${Math.random().toString(36).substring(7)}.jpg`;
         
         const { error: uploadError } = await supabase.storage
           .from('payment_proofs')
@@ -151,7 +153,13 @@ export default function PaymentModal({ isOpen, onClose, grandTotal, upiId, payee
         .select()
         .single();
 
-      if (orderError) throw orderError;
+      if (orderError) {
+        // Handle duplicate UTR (unique index violation)
+        if (orderError.code === '23505') {
+          throw new Error('This UTR has already been used for another order. Please check your UTR number.');
+        }
+        throw orderError;
+      }
 
       // 3. Create Order Items
       const orderItems = cartItems.map(item => ({
@@ -173,9 +181,14 @@ export default function PaymentModal({ isOpen, onClose, grandTotal, upiId, payee
       onClose();
       navigate('/success', { state: { orderId: order.id } });
 
-    } catch (err: any) {
-      toast.error(err.message || 'Failed to place order. Please try again.', { id: 'checkout' });
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Failed to place order. Please try again.';
+      toast.error(message, { id: 'checkout' });
       setIsSubmitting(false);
+      
+      // 5-second cooldown to prevent spam
+      setCooldown(true);
+      setTimeout(() => setCooldown(false), 5000);
     }
   };
 
@@ -288,14 +301,14 @@ export default function PaymentModal({ isOpen, onClose, grandTotal, upiId, payee
           </button>
           <button 
             onClick={handleCompleteOrder}
-            disabled={isSubmitting || (!utr && !screenshot)}
+            disabled={isSubmitting || cooldown || (!utr && !screenshot)}
             className={`flex-[2] py-4 rounded-[12px] font-bold text-lg transition-colors flex justify-center items-center gap-2
-              ${(!utr && !screenshot) || isSubmitting
+              ${(!utr && !screenshot) || isSubmitting || cooldown
                 ? 'bg-brand-primary/50 text-[#115E63]/50 cursor-not-allowed' 
                 : 'bg-brand-primary text-[#115E63] hover:bg-brand-primary/90'
               }`}
           >
-            {isSubmitting ? 'Placing Order...' : 'Complete Order'}
+            {isSubmitting ? 'Placing Order...' : cooldown ? 'Please wait...' : 'Complete Order'}
           </button>
         </div>
 

@@ -12,14 +12,20 @@ export default function Dashboard() {
 
   useEffect(() => {
     async function fetchCounts() {
+      // Run all queries in parallel; each is optimised to only fetch what's needed
       const [productsRes, categoriesRes, ordersRes] = await Promise.all([
-        supabase.from('products').select('featured'),
+        // Only fetch 'featured' column — avoids transferring image_url, description, etc.
+        supabase.from('products').select('featured', { count: 'exact' }),
+
+        // head:true = no rows transferred, just the count
         supabase.from('categories').select('*', { count: 'exact', head: true }),
-        supabase.from('orders').select('status, order_items(price, quantity)')
+
+        // Only fetch status + total_amount — avoids joining all order_items
+        supabase.from('orders').select('status, total_amount'),
       ]);
 
       if (!productsRes.error && productsRes.data) {
-        setProductCount(productsRes.data.length);
+        setProductCount(productsRes.count ?? productsRes.data.length);
         setFeaturedCount(productsRes.data.filter(p => p.featured).length);
       }
       
@@ -30,18 +36,13 @@ export default function Dashboard() {
       if (!ordersRes.error && ordersRes.data) {
         setOrderCount(ordersRes.data.length);
         
-        // Calculate pending orders
         const pending = ordersRes.data.filter(o => o.status === 'Pending').length;
         setPendingOrders(pending);
         
-        // Calculate total revenue (excluding cancelled orders and excluding shipping)
+        // Sum total_amount from orders (pre-computed at order time), excluding cancelled
         const revenue = ordersRes.data
           .filter(o => o.status !== 'Cancelled')
-          .reduce((sum, order) => {
-            const items = (order.order_items as any[]) || [];
-            const orderItemsTotal = items.reduce((itemSum, item) => itemSum + (item.price * item.quantity), 0);
-            return sum + orderItemsTotal;
-          }, 0);
+          .reduce((sum, order) => sum + (Number(order.total_amount) || 0), 0);
         setTotalRevenue(revenue);
       }
     }

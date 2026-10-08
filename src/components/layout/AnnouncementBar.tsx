@@ -1,35 +1,12 @@
-import { useEffect, useState } from 'react';
-import { supabase } from '../../services/supabase';
 import { MessageCircle } from 'lucide-react';
-
-interface SettingsData {
-  whatsapp_number: string;
-  instagram_url: string;
-  shipping_text: string;
-  free_shipping_threshold: number | null;
-}
+import { useSettings } from '../../context/SettingsContext';
 
 export default function AnnouncementBar() {
-  const [settings, setSettings] = useState<SettingsData | null>(null);
-
-  useEffect(() => {
-    async function fetchSettings() {
-      const { data } = await supabase
-        .from('settings')
-        .select('whatsapp_number, instagram_url, shipping_text, free_shipping_threshold')
-        .limit(1)
-        .single();
-      
-      if (data) {
-        setSettings(data as SettingsData);
-      }
-    }
-    fetchSettings();
-  }, []);
+  const { settings } = useSettings();
 
   const shippingText = settings?.shipping_text || 'Shipping ₹80';
-  const thresholdText = settings?.free_shipping_threshold 
-    ? ` | Free shipping on orders above ₹${settings.free_shipping_threshold}` 
+  const thresholdText = settings?.free_shipping_threshold
+    ? ` | Free shipping on orders above ₹${settings.free_shipping_threshold}`
     : '';
   const instagramUrl = settings?.instagram_url || 'https://instagram.com';
   const whatsappNumber = settings?.whatsapp_number || '';
@@ -41,9 +18,9 @@ export default function AnnouncementBar() {
       </div>
       <div className="absolute right-4 flex items-center gap-4">
         {whatsappNumber && (
-          <a 
+          <a
             href={`https://wa.me/${whatsappNumber.replace(/[^0-9]/g, '')}?text=${encodeURIComponent('Hi CHERIE! I absolutely love your collection and would like to inquire about some products. Looking forward to hearing from you!')}`}
-            target="_blank" 
+            target="_blank"
             rel="noopener noreferrer"
             className="hover:opacity-70 transition-opacity flex items-center justify-center"
             title="WhatsApp Us"
@@ -51,9 +28,9 @@ export default function AnnouncementBar() {
             <MessageCircle size={18} />
           </a>
         )}
-        <a 
+        <a
           href={instagramUrl}
-          target="_blank" 
+          target="_blank"
           rel="noopener noreferrer"
           className="hover:opacity-70 transition-opacity flex items-center justify-center"
           title="Instagram"

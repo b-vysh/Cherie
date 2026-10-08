@@ -1,4 +1,6 @@
-import { X, ExternalLink, Image as ImageIcon } from 'lucide-react';
+import { useState } from 'react';
+import { X, ExternalLink, Image as ImageIcon, Loader2 } from 'lucide-react';
+import { supabase } from '../../services/supabase';
 import type { Database } from '../../types/database.types';
 
 type Order = Database['public']['Tables']['orders']['Row'];
@@ -13,7 +15,46 @@ interface OrderDetailsModalProps {
 }
 
 export default function OrderDetailsModal({ isOpen, onClose, order, orderItems, onStatusChange }: OrderDetailsModalProps) {
+  const [loadingProof, setLoadingProof] = useState(false);
+
   if (!isOpen || !order) return null;
+
+  const handleViewScreenshot = async () => {
+    if (!order.payment_proof_url) return;
+
+    try {
+      setLoadingProof(true);
+      const url = order.payment_proof_url;
+      
+      // Extract file path from stored URL or path
+      let filePath = '';
+      if (url.includes('/payment_proofs/')) {
+        filePath = url.split('/payment_proofs/')[1].split('?')[0];
+      } else if (url.includes('/payment-receipts/')) {
+        filePath = url.split('/payment-receipts/')[1].split('?')[0];
+      } else {
+        const parts = url.split('/');
+        filePath = parts[parts.length - 1].split('?')[0];
+      }
+
+      // Try creating signed URL (works for private buckets)
+      const { data, error } = await supabase.storage
+        .from('payment_proofs')
+        .createSignedUrl(decodeURIComponent(filePath), 60 * 60); // 1 hour expiry
+
+      if (!error && data?.signedUrl) {
+        window.open(data.signedUrl, '_blank');
+      } else {
+        // Fallback to direct URL if public or bucket is different
+        window.open(url, '_blank');
+      }
+    } catch {
+      // Direct link fallback
+      window.open(order.payment_proof_url, '_blank');
+    } finally {
+      setLoadingProof(false);
+    }
+  };
 
   return (
     <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-brand-primary/50 backdrop-blur-sm">
@@ -78,16 +119,15 @@ export default function OrderDetailsModal({ isOpen, onClose, order, orderItems, 
                     <p className="mb-2"><span className="font-bold text-[#115E63]/70">UTR:</span> {order.payment_utr}</p>
                   )}
                   {order.payment_proof_url ? (
-                    <a 
-                      href={order.payment_proof_url} 
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-2 bg-brand-primary/10 hover:bg-brand-primary/20 px-4 py-2 rounded-lg transition-colors text-sm font-bold"
+                    <button 
+                      onClick={handleViewScreenshot}
+                      disabled={loadingProof}
+                      className="inline-flex items-center gap-2 bg-brand-primary/10 hover:bg-brand-primary/20 px-4 py-2 rounded-lg transition-colors text-sm font-bold text-[#115E63] disabled:opacity-50 cursor-pointer"
                     >
-                      <ImageIcon size={16} />
+                      {loadingProof ? <Loader2 size={16} className="animate-spin" /> : <ImageIcon size={16} />}
                       View Screenshot
                       <ExternalLink size={14} />
-                    </a>
+                    </button>
                   ) : (
                     !order.payment_utr && <p className="text-brand-accent text-xs italic">No payment proof provided</p>
                   )}

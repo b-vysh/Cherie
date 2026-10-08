@@ -28,7 +28,13 @@ export default function Login() {
     });
 
     if (authError) {
-      setError(authError.message);
+      // Normalise to a friendly message — don't leak raw Supabase internals
+      const msg = authError.message.toLowerCase();
+      if (msg.includes('invalid login') || msg.includes('invalid credentials') || msg.includes('email not confirmed')) {
+        setError('Invalid email or password. Please try again.');
+      } else {
+        setError('Sign in failed. Please check your connection and try again.');
+      }
       setIsLoading(false);
     } else {
       navigate('/admin');
