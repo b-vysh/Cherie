@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react';
-import { X, Upload, CheckCircle, ExternalLink, Copy, Check } from 'lucide-react';
+import { X, Upload, CheckCircle, ExternalLink, Copy, Check, Trash2 } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import { supabase } from '../../services/supabase';
 import { useNavigate } from 'react-router-dom';
@@ -61,6 +61,14 @@ export default function PaymentModal({ isOpen, onClose, grandTotal, upiId, payee
         return;
       }
       setScreenshot(file);
+    }
+  };
+
+  const handleRemoveScreenshot = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setScreenshot(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
     }
   };
 
@@ -304,10 +312,20 @@ export default function PaymentModal({ isOpen, onClose, grandTotal, upiId, payee
                     onChange={handleFileChange}
                   />
                   {screenshot ? (
-                    <div className="flex flex-col items-center text-brand-accent">
-                      <CheckCircle size={24} className="mb-2" />
-                      <span className="font-bold text-sm">{screenshot.name}</span>
-                      <span className="text-xs opacity-70 mt-1">Click to change file</span>
+                    <div className="flex flex-col items-center text-[#115E63]">
+                      <CheckCircle size={24} className="mb-2 text-[#115E63]" />
+                      <span className="font-bold text-sm max-w-xs truncate">{screenshot.name}</span>
+                      <div className="flex items-center gap-3 mt-2">
+                        <span className="text-xs opacity-70">Click to change</span>
+                        <button
+                          type="button"
+                          onClick={handleRemoveScreenshot}
+                          className="inline-flex items-center gap-1 text-xs font-bold text-red-600 hover:text-red-700 bg-red-50 hover:bg-red-100 px-2 py-1 rounded-md transition-colors cursor-pointer"
+                        >
+                          <Trash2 size={13} />
+                          Remove
+                        </button>
+                      </div>
                     </div>
                   ) : (
                     <div className="flex flex-col items-center text-[#115E63]/60">
